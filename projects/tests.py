@@ -71,7 +71,14 @@ class HardwareProjectTests(TestCase):
         response = self.client.post(
             reverse("project_create"), self.payload(**changes), secure=True
         )
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.status_code, 302,
+            msg=f"Project form: {response.context['form'].errors}; "
+                f"BOM: {response.context['parts'].errors}; "
+                f"Resources: {response.context['resources'].errors}; "
+                f"Non-form: {response.context['parts'].non_form_errors()} / "
+                f"{response.context['resources'].non_form_errors()}",
+        )
         return Project.objects.get(author=self.developer)
 
     def test_developer_creates_draft_with_bom_and_3d_resource(self):
