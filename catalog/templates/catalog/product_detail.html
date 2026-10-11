@@ -1,11 +1,51 @@
-<!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{ product.title }} — MISTERCHIP</title></head><body>
-<p><a href="{% url 'home' %}">← Каталог</a></p>
-<h1>{{ product.title }}</h1>
-<p>{{ product.product_type.name }} · {% if product.brand %}{{ product.brand.name }}{% endif %}</p>
-<p>{{ product.description }}</p>
-<h2>Характеристики</h2>
-<table><tbody>{% for row in characteristics %}<tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>{% empty %}<tr><td>Характеристики ещё не добавлены.</td></tr>{% endfor %}</tbody></table>
-<p><a href="{% url 'catalog_search' %}?type={{ product.product_type_id }}">Сравнить с другими моделями этого типа</a></p>
-</body></html>
+{% extends "catalog/base.html" %}
+{% block title %}{{ product.title }} — MISTERCHIP{% endblock %}
+{% block description %}Характеристики {{ product.title }} и ссылки на документацию производителя.{% endblock %}
+{% block content %}
+<div class="breadcrumbs">
+  <a href="{% url 'home' %}">Главная</a> <span>›</span>
+  <a href="{% url 'catalog_search' %}?category={{ product.product_type.category.slug }}">{{ product.product_type.category.name }}</a>
+  <span>›</span><span>{{ product.product_type.name }}</span>
+</div>
+<section class="product-head">
+  <div>
+    <span class="eyebrow">{{ product.brand.name|default:"Электроника" }} · {{ product.product_type.name }}</span>
+    <h1>{{ product.title }}</h1>
+    <p class="lede">{{ product.description|default:"Описание ещё не добавлено." }}</p>
+    <p class="small subtle">Артикул производителя: <strong>{{ product.mpn|default:"не указан" }}</strong></p>
+    <a class="secondary-action" href="{% url 'catalog_search' %}?type={{ product.product_type_id }}">Выбрать модели для сравнения →</a>
+  </div>
+  <div class="product-illustration" aria-label="Иллюстрация отсутствует">
+    <div class="product-illustration-mark">▦</div>
+    <p>Изображение не размещено<br>до получения прав на использование.</p>
+  </div>
+</section>
+<div class="detail-layout">
+  <section class="panel">
+    <span class="eyebrow">Технические сведения</span>
+    <h2>Характеристики</h2>
+    <div class="table-scroll"><table class="spec-table"><tbody>
+    {% for row in characteristics %}
+      <tr><th scope="row">{{ row.label }}</th><td>{{ row.value }}</td></tr>
+    {% empty %}<tr><td>Характеристики пока не добавлены.</td></tr>{% endfor %}
+    </tbody></table></div>
+    <p class="small subtle">Данные справочные. Перед применением сверяйте характеристики с оригинальной спецификацией производителя.</p>
+  </section>
+  <aside class="detail-sidebar">
+    <section class="panel">
+      <span class="eyebrow">Первоисточники</span><h2>Документация</h2>
+      {% for resource in references %}
+        <div class="source-card">
+          <span class="tag">{% if resource.official %}Официальный источник{% else %}Внешний источник{% endif %}</span>
+          <p class="source-title"><a href="{{ resource.url }}" rel="noopener noreferrer" target="_blank">{{ resource.title }} ↗</a></p>
+          <p class="small subtle">{{ resource.publisher }}{% if resource.verified_on %} · проверено {{ resource.verified_on|date:"d.m.Y" }}{% endif %}</p>
+        </div>
+      {% empty %}<p class="subtle">Ссылки на документацию пока не добавлены.</p>{% endfor %}
+    </section>
+    <section class="panel">
+      <span class="eyebrow">Торговая площадка</span><h2>Предложения продавцов</h2>
+      <p class="subtle">Магазины ещё не подключены. Актуальных цен и остатков нет.</p>
+    </section>
+  </aside>
+</div>
+{% endblock %}

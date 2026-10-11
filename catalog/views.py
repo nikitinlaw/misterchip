@@ -39,6 +39,7 @@ def product_detail(request, slug):
     ]
     return render(request, "catalog/product_detail.html", {
         "product": product, "characteristics": characteristics,
+        "references": product.references.all(),
     })
 
 

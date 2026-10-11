@@ -1,3 +1,6 @@
-<!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><title>Сравнение невозможно — MISTERCHIP</title></head>
-<body><h1>Сравнение невозможно</h1><p>{{ error }}</p><a href="{% url 'catalog_search' %}">Вернуться к выбору</a></body></html>
+{% extends "catalog/base.html" %}
+{% block title %}Сравнение невозможно — MISTERCHIP{% endblock %}
+{% block content %}
+<section class="panel error-panel"><h1>Сравнение невозможно</h1><p>{{ error }}</p>
+<a href="{% url 'catalog_search' %}">Вернуться к выбору</a></section>
+{% endblock %}

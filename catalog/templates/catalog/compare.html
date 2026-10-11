@@ -1,14 +1,20 @@
-<!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Сравнение моделей — MISTERCHIP</title></head>
-<body><p><a href="{% url 'catalog_search' %}">← Каталог</a></p>
-<h1>Сравнение: {{ product_type.name }}</h1>
-<table border="1"><thead><tr><th>Характеристика</th>
-{% for product in products %}<th><a href="{% url 'product_detail' product.slug %}">{{ product.title }}</a></th>{% endfor %}
-</tr></thead><tbody>
-{% for row in rows %}<tr{% if row.different %} class="different"{% endif %}><th>{{ row.name }}</th>
-{% for value in row.values %}<td>{{ value }}</td>{% endfor %}
-</tr>{% empty %}<tr><td colspan="5">Для этого типа пока не настроены характеристики сравнения.</td></tr>{% endfor %}
-</tbody></table>
-<p>«Нет данных» означает отсутствие подтверждённых характеристик. Различия показаны только для известных значений.</p>
-</body></html>
+{% extends "catalog/base.html" %}
+{% block title %}Сравнение товаров — MISTERCHIP{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'home' %}">Главная</a><span>›</span><a href="{% url 'catalog_search' %}">Каталог</a><span>›</span><span>Сравнение</span></div>
+<div class="page-heading"><span class="eyebrow">{{ product_type.name }}</span><h1>Сравнение моделей</h1>
+<p class="subtle">Различающиеся подтверждённые параметры выделены. Отсутствующие значения не принимаются за ноль.</p></div>
+<section class="panel">
+  <div class="table-scroll"><table class="compare-table">
+    <thead><tr><th scope="col">Характеристика</th>
+      {% for product in products %}<th scope="col"><a href="{% url 'product_detail' product.slug %}">{{ product.title }}</a></th>{% endfor %}
+    </tr></thead>
+    <tbody>{% for row in rows %}
+      <tr{% if row.different %} class="different"{% endif %}><th scope="row">{{ row.name }}</th>
+      {% for value in row.values %}<td>{{ value }}</td>{% endfor %}</tr>
+    {% empty %}<tr><td colspan="5">Для этого типа пока не настроены характеристики сравнения.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+<p class="small subtle">Сравнение предназначено для справочных целей. Дополнительные условия совместимости необходимо проверять по документации производителей.</p>
+<a class="secondary-action" href="{% url 'catalog_search' %}?type={{ product_type.pk }}">Выбрать другие модели</a>
+{% endblock %}

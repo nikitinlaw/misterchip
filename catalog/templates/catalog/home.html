@@ -1,8 +1,45 @@
-<!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MISTERCHIP — каталог электроники</title></head><body>
-<h1>MISTERCHIP</h1><p>Каталог электроники, справочная информация и характеристики.</p>
-<p><a href="{% url 'catalog_search' %}">Поиск по товарам и техническим параметрам</a></p>
-<h2>Разделы</h2><ul>{% for category in categories %}<li><a href="{% url 'catalog_search' %}?category={{ category.slug }}">{{ category.name }}</a></li>{% empty %}<li>Разделы пока не загружены.</li>{% endfor %}</ul>
-<h2>Модели</h2><ul>{% for product in products %}<li><a href="{% url 'product_detail' product.slug %}">{{ product.title }}</a></li>{% empty %}<li>Опубликованных моделей пока нет.</li>{% endfor %}</ul>
-</body></html>
+{% extends "catalog/base.html" %}
+{% block content %}
+<section class="hero">
+  <span class="eyebrow">MISTERCHIP CATALOG · Пилотная версия</span>
+  <h1>Электроника без лишних догадок</h1>
+  <p class="lede">Подробные характеристики, сравнение моделей и ссылки на документацию производителей. Начинаем с оперативной памяти и радиодеталей.</p>
+  <form action="{% url 'catalog_search' %}" method="get" class="hero-search">
+    <label for="home-q" class="sr-only">Поиск по модели или артикулу</label>
+    <input id="home-q" name="q" type="search" placeholder="Например, KF556C40BB-16 или RC0603FR" autocomplete="off">
+    <button type="submit">Найти</button>
+  </form>
+  <p class="small subtle">Пока без коммерческих предложений: товары добавлены по сведениям изготовителей.</p>
+</section>
+<section class="section">
+  <div class="section-heading">
+    <div><span class="eyebrow">Навигация</span><h2>Разделы каталога</h2></div>
+    <a href="{% url 'catalog_search' %}">Все модели →</a>
+  </div>
+  <div class="category-grid">
+    {% for category in categories %}
+      <a class="category-tile" href="{% url 'catalog_search' %}?category={{ category.slug }}">
+        <span>{{ category.name }}</span><span aria-hidden="true">↗</span>
+      </a>
+    {% empty %}<p class="empty-state">Категории ещё не загружены.</p>{% endfor %}
+  </div>
+</section>
+<section class="section">
+  <div class="section-heading">
+    <div><span class="eyebrow">Первые карточки</span><h2>Проверенные модели</h2></div>
+  </div>
+  <div class="product-grid">
+    {% for product in products %}
+      <article class="product-card">
+        <div class="product-mark" aria-hidden="true">{{ product.brand.name|default:"MC"|slice:":2"|upper }}</div>
+        <span class="eyebrow">{{ product.product_type.name }}</span>
+        <h3><a href="{% url 'product_detail' product.slug %}">{{ product.title }}</a></h3>
+        <p class="small subtle">{{ product.mpn }}</p>
+        <div class="product-card-bottom"><span class="tag">Справочная карточка</span><a href="{% url 'product_detail' product.slug %}">Подробнее →</a></div>
+      </article>
+    {% empty %}
+      <p class="empty-state">Моделей пока нет. Администратор может загрузить их командой seed_demo_catalog.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
