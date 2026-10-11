@@ -1,0 +1,10 @@
+{% extends "catalog/base.html" %}
+{% block title %}Вход — MISTERCHIP{% endblock %}
+{% block content %}
+<section class="panel auth-panel"><h1>Вход в MISTERCHIP</h1>
+  <form method="post">{% csrf_token %}{{ form.as_p }}
+  {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+  <button type="submit">Войти</button></form>
+  <p>Нет учётной записи? <a href="{% url 'account_register' %}">Зарегистрироваться</a></p>
+</section>
+{% endblock %}

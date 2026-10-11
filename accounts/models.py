@@ -32,3 +32,14 @@ class UserRole(models.Model):
 
     def __str__(self):
         return f"{self.user}: {self.get_role_display()}"
+
+
+class Profile(models.Model):
+    """Public-facing details, separate from login/email and privileged access."""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")
+    display_name = models.CharField(max_length=100, blank=True)
+    bio = models.TextField(max_length=1200, blank=True)
+    website = models.URLField(blank=True)
+
+    def __str__(self):
+        return self.display_name or self.user.username

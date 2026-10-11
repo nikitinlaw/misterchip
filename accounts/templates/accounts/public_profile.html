@@ -1,0 +1,17 @@
+{% extends "catalog/base.html" %}
+{% block title %}{{ profile.display_name|default:person.username }} — автор MISTERCHIP{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <span class="eyebrow">Участник сообщества</span>
+  <h1>{{ profile.display_name|default:person.username }}</h1>
+  {% if profile.bio %}<p class="lede">{{ profile.bio|linebreaksbr }}</p>{% endif %}
+  {% if profile.website %}<p><a href="{{ profile.website }}" rel="nofollow noopener noreferrer" target="_blank">Сайт автора ↗</a></p>{% endif %}
+</section>
+<section class="section"><h2>Опубликованные материалы</h2>
+  <div class="search-result-list">
+    {% for publication in publications %}
+    <article class="search-result"><div><h3><a href="{% url 'article_detail' publication.slug %}">{{ publication.title }}</a></h3><p class="subtle">{{ publication.summary }}</p></div></article>
+    {% empty %}<p>Публикаций пока нет.</p>{% endfor %}
+  </div>
+</section>
+{% endblock %}

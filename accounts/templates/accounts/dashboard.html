@@ -1,0 +1,15 @@
+{% extends "catalog/base.html" %}
+{% block title %}Личный кабинет — MISTERCHIP{% endblock %}
+{% block content %}
+<div class="page-heading"><span class="eyebrow">Моя учётная запись</span><h1>Личный кабинет</h1></div>
+<section class="panel">
+  <p><strong>{{ request.user.username }}</strong> · {{ request.user.email }}</p>
+  <p>Текущие роли:
+    {% for entry in roles %}<span class="tag">{{ entry.get_role_display }}</span>{% empty %}не назначены{% endfor %}
+  </p>
+  <p><a href="{% url 'public_profile' request.user.username %}">Посмотреть публичную страницу</a></p>
+  <h2>Мой профиль</h2>
+  <p class="subtle">Автором, обзорщиком и разработчиком можно быть одновременно. Права редактора нельзя получить самостоятельно.</p>
+  <form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Сохранить профиль</button></form>
+</section>
+{% endblock %}
