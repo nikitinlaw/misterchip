@@ -71,7 +71,9 @@ class ResourceForm(forms.ModelForm):
         }
 
     def clean_url(self):
-        url = self.cleaned_data["url"]
+        url = self.cleaned_data.get("url")
+        if not url:
+            return url
         if urlsplit(url).scheme != "https":
             raise forms.ValidationError("Для ресурсов разрешены только HTTPS-ссылки.")
         return url

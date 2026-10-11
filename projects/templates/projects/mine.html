@@ -1,0 +1,22 @@
+{% extends "catalog/base.html" %}
+{% block title %}Мои DIY-проекты — MISTERCHIP{% endblock %}
+{% block content %}
+<section class="page-heading"><h1>Мои DIY-проекты</h1>
+{% if may_develop %}<a class="secondary-action" href="{% url 'project_create' %}">Создать проект →</a>
+{% else %}<p>Включите роль «Разработчик» или «Автор» в <a href="{% url 'account_dashboard' %}">профиле</a>.</p>{% endif %}
+</section>
+<div class="search-result-list">
+{% for project in projects %}
+  <article class="search-result">
+    <div><h2>{{ project.title }}</h2><p class="small subtle">{{ project.get_status_display }}</p>
+    {% if project.status == "draft" or project.status == "rejected" %}
+      <a href="{% url 'project_edit' project.pk %}">Редактировать BOM и материалы</a>
+      <form method="post" action="{% url 'project_submit' project.pk %}" class="inline-submit">
+      {% csrf_token %}<button type="submit">Отправить редактору</button></form>
+    {% elif project.status == "published" %}
+      <a href="{% url 'project_detail' project.slug %}">Открыть опубликованный проект</a>
+    {% else %}<span class="small subtle">Ожидает решения редактора.</span>{% endif %}
+    </div></article>
+{% empty %}<p class="empty-state">Создайте первый проект устройства.</p>{% endfor %}
+</div>
+{% endblock %}

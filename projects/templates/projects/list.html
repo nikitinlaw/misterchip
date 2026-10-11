@@ -1,0 +1,28 @@
+{% extends "catalog/base.html" %}
+{% block title %}DIY-проекты — MISTERCHIP{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <span class="eyebrow">MISTERCHIP DIY</span><h1>Проекты для самостоятельной сборки</h1>
+  <p class="lede">Схемы, перечни компонентов, прошивки, исходный код и детали для 3D-печати.</p>
+  {% if request.user.is_authenticated %}
+    <a class="secondary-action" href="{% url 'my_projects' %}">Мои проекты →</a>
+  {% endif %}
+</section>
+<div class="product-grid">
+  {% for project in page %}
+  <article class="product-card">
+    <span class="eyebrow">DIY / Собери сам</span>
+    <h2><a href="{% url 'project_detail' project.slug %}">{{ project.title }}</a></h2>
+    <p>{{ project.summary }}</p>
+    <p class="small subtle">Разработчик:
+      <a href="{% url 'public_profile' project.author.username %}">{{ project.author.username }}</a>
+    </p>
+  </article>
+  {% empty %}<p class="empty-state">Опубликованных проектов пока нет.</p>{% endfor %}
+</div>
+<nav class="pagination" aria-label="Страницы проектов">
+{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">← Назад</a>{% endif %}
+<span>{{ page.number }} из {{ page.paginator.num_pages }}</span>
+{% if page.has_next %}<a href="?page={{ page.next_page_number }}">Далее →</a>{% endif %}
+</nav>
+{% endblock %}

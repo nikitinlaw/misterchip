@@ -1,0 +1,54 @@
+{% extends "catalog/base.html" %}
+{% block title %}{{ project.title }} — DIY MISTERCHIP{% endblock %}
+{% block description %}{{ project.summary }}{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'home' %}">Главная</a><span>›</span>
+<a href="{% url 'project_list' %}">DIY-проекты</a><span>›</span><span>{{ project.title }}</span></div>
+<section class="page-heading">
+<span class="eyebrow">MISTERCHIP DIY / Собери сам</span><h1>{{ project.title }}</h1>
+<p class="lede">{{ project.summary }}</p>
+<p class="small subtle">Автор:
+  <a href="{% url 'public_profile' project.author.username %}">{{ project.author.username }}</a>
+  {% if project.published_at %} · {{ project.published_at|date:"d.m.Y" }}{% endif %}
+</p></section>
+<section class="panel article-body">
+<h2>Назначение и устройство</h2>{{ project.description|linebreaks }}
+<h2>Сборка и проверка</h2>{{ project.assembly_instructions|linebreaks }}
+</section>
+<section class="section panel">
+<h2>Перечень компонентов (BOM)</h2>
+<div class="table-scroll"><table class="spec-table">
+<thead><tr><th>Компонент</th><th>Количество</th><th>Примечания</th></tr></thead>
+<tbody>{% for component in components %}
+  <tr><td>
+    {% if component.product and component.product.status == "published" %}
+      <a href="{% url 'product_detail' component.product.slug %}">{{ component.name }}</a>
+    {% else %}{{ component.name }}{% endif %}
+  </td><td>{{ component.quantity }} {{ component.get_unit_display }}</td>
+  <td>{{ component.note|default:"—" }}</td></tr>
+{% empty %}<tr><td colspan="3">Состав пока не указан.</td></tr>{% endfor %}
+</tbody></table></div>
+</section>
+<section class="section panel"><h2>Схемы, код, прошивки и 3D-модели</h2>
+<div class="source-list">
+  {% for item in resources %}
+    <div class="source-card">
+      <span class="eyebrow">{{ item.get_kind_display }}</span>
+      <p class="source-title"><a href="{{ item.url }}" rel="noopener noreferrer nofollow" target="_blank">{{ item.title }} ↗</a></p>
+      {% if item.rights_note %}<p class="small subtle">Источник / лицензия: {{ item.rights_note }}</p>{% endif %}
+    </div>
+  {% empty %}<p>Ресурсов пока нет.</p>{% endfor %}
+</div>
+<p class="small subtle">Ссылки ведут на внешние сайты. Перед загрузкой файлов проверьте источник и условия лицензии.</p>
+</section>
+{% if project.license_notes %}
+<section class="section panel"><h2>Лицензии и права</h2>{{ project.license_notes|linebreaks }}</section>
+{% endif %}
+<section class="section"><h2>Связанные товары каталога</h2>
+<div class="product-grid">
+{% for product in products %}<article class="product-card">
+<span class="eyebrow">{{ product.product_type.name }}</span>
+<h3><a href="{% url 'product_detail' product.slug %}">{{ product.title }}</a></h3>
+</article>{% empty %}<p>Модели не привязаны.</p>{% endfor %}
+</div></section>
+{% endblock %}

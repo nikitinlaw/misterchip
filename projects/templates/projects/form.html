@@ -1,0 +1,31 @@
+{% extends "catalog/base.html" %}
+{% block title %}Редактор DIY-проекта — MISTERCHIP{% endblock %}
+{% block content %}
+<div class="page-heading"><span class="eyebrow">Мастерская MISTERCHIP</span>
+<h1>{% if created %}Новый DIY-проект{% else %}Редактирование проекта{% endif %}</h1>
+<p class="lede">Опишите устройство, перечислите детали и добавьте ссылки на схемы, прошивку, 3D-модели или открытый код. Файлы на сервер пока не загружаются.</p>
+</div>
+<form method="post" class="project-editor">{% csrf_token %}
+<section class="panel"><h2>Описание и права</h2>{{ form.as_p }}</section>
+<section class="panel"><h2>Компоненты (BOM)</h2>
+<p class="subtle">Укажите количество каждого компонента. Можно связать позицию с моделью в каталоге.</p>
+{{ parts.management_form }}
+{% if parts.non_form_errors %}{{ parts.non_form_errors }}{% endif %}
+{% for part in parts.forms %}
+  <div class="formset-row"><h3>Компонент {{ forloop.counter }}</h3>{{ part.id }}
+  {% for field in part.visible_fields %}{% if field.name != "id" %}<p>{{ field.label_tag }} {{ field }} {{ field.errors }}</p>{% endif %}{% endfor %}</div>
+{% endfor %}
+</section>
+<section class="panel"><h2>Технические материалы</h2>
+<p class="subtle">Прямые HTTPS-ссылки на оригинальные источники, без загрузки исполняемых файлов на сервер.</p>
+{{ resources.management_form }}
+{% if resources.non_form_errors %}{{ resources.non_form_errors }}{% endif %}
+{% for resource in resources.forms %}
+  <div class="formset-row"><h3>Ресурс {{ forloop.counter }}</h3>{{ resource.id }}
+  {% for field in resource.visible_fields %}{% if field.name != "id" %}<p>{{ field.label_tag }} {{ field }} {{ field.errors }}</p>{% endif %}{% endfor %}</div>
+{% endfor %}
+</section>
+<button type="submit">Сохранить черновик</button>
+<a class="secondary-action" href="{% url 'my_projects' %}">Вернуться без сохранения</a>
+</form>
+{% endblock %}

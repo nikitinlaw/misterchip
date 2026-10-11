@@ -113,6 +113,8 @@ def public_profile(request, username):
     publications = person.publications.filter(
         status="published",
     ).order_by("-published_at", "-pk")
+    projects = person.hardware_projects.filter(status="published").order_by("-published_at", "-pk")
     return render(request, "accounts/public_profile.html", {
         "person": person, "profile": profile, "publications": publications,
+        "projects": projects,
     })

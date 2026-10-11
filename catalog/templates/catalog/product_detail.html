@@ -1,5 +1,16 @@
 {% extends "catalog/base.html" %}
-{% block title %}{{ product.title }} — MISTERCHIP{% endblock %}
+{% block title %}{{ product.title }} — MISTERCHIP<section class="section">
+  <h2>DIY-проекты с этой моделью</h2>
+  <div class="product-grid">
+    {% for project in related_projects %}
+    <article class="product-card">
+      <h3><a href="{% url 'project_detail' project.slug %}">{{ project.title }}</a></h3>
+      <p>{{ project.summary }}</p>
+    </article>
+    {% empty %}<p class="subtle">Пока нет опубликованных DIY-проектов.</p>{% endfor %}
+  </div>
+</section>
+{% endblock %}
 {% block description %}Характеристики {{ product.title }} и ссылки на документацию производителя.{% endblock %}
 {% block content %}
 <div class="breadcrumbs">

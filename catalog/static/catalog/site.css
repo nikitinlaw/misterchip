@@ -88,3 +88,12 @@ textarea{width:100%;max-width:100%;padding:10px 12px;border:1px solid #bdc8d5;bo
 .inline-submit{display:inline-block;margin:6px 0}
 .inline-submit button{font-size:13px;padding:7px 11px}
 @media(max-width:630px){.header-inner{flex-wrap:wrap;align-items:start;padding-top:13px;padding-bottom:14px}.nav{gap:12px}.nav a{font-size:14px}}
+
+/* DIY-project editing */
+.project-editor{max-width:960px;margin:0 auto;display:grid;gap:20px}
+.project-editor .panel{display:block}
+.project-editor textarea{width:100%}
+.formset-row{padding:18px;margin:12px 0;background:#f6f9fc;border:1px solid var(--line);border-radius:12px}
+.formset-row h3{font-size:16px}
+.formset-row input,.formset-row select{max-width:100%}
+.project-editor input[type=checkbox]{width:auto}

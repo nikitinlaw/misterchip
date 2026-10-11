@@ -43,6 +43,9 @@ def product_detail(request, slug):
         "related_articles": product.editorial_articles.filter(
             status="published",
         ).select_related("author")[:6],
+        "related_projects": product.hardware_projects.filter(
+            status="published",
+        ).select_related("author")[:6],
     })
 
 

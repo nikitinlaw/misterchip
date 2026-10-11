@@ -1,5 +1,12 @@
 {% extends "catalog/base.html" %}
-{% block title %}{{ profile.display_name|default:person.username }} — автор MISTERCHIP{% endblock %}
+{% block title %}{{ profile.display_name|default:person.username }} — автор MISTERCHIP<section class="section"><h2>DIY-проекты автора</h2>
+<div class="product-grid">
+  {% for project in projects %}
+    <article class="product-card"><h3><a href="{% url 'project_detail' project.slug %}">{{ project.title }}</a></h3>
+    <p>{{ project.summary }}</p></article>
+  {% empty %}<p>Опубликованных проектов пока нет.</p>{% endfor %}
+</div></section>
+{% endblock %}
 {% block content %}
 <section class="page-heading">
   <span class="eyebrow">Участник сообщества</span>
