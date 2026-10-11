@@ -96,3 +96,23 @@ class PublicCatalogTests(TestCase):
         self.assertEqual(self.client.get(reverse("catalog_compare"), {
             "ids": ["1", "2", "3", "4", "5"]
         }, secure=True).status_code, 400)
+
+    def test_pagination_keeps_specification_filters(self):
+        for idx in range(22):
+            product = Product.objects.create(
+                product_type=self.resistor, brand=self.first.brand,
+                title=f"Резистор запасной {idx}", slug=f"spare-{idx}",
+                status="published",
+            )
+            ProductAttributeValue.objects.create(
+                product=product, attribute=self.resistance,
+                number_value=Decimal("1000"), unit="Ом",
+            )
+        response = self.client.get(reverse("catalog_search"), {
+            "type": str(self.resistor.pk), "q": "Резистор", "brand": "test-brand",
+            f"a_{self.resistance.pk}_min": "900",
+        }, secure=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["page"].has_next())
+        self.assertIn(f"a_{self.resistance.pk}_min=900", response.context["pagination_query"])
+        self.assertIn("brand=test-brand", response.context["pagination_query"])

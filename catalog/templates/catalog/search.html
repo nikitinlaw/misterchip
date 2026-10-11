@@ -37,7 +37,7 @@
 </li>{% empty %}<li>Модели не найдены.</li>{% endfor %}</ul>
 <button type="submit">Сравнить выбранные модели</button>
 </form>
-{% if page.has_previous %}<a href="?q={{ query|urlencode }}&amp;type={% if selected_type %}{{ selected_type.pk }}{% endif %}&amp;page={{ page.previous_page_number }}">Назад</a>{% endif %}
+{% if page.has_previous %}<a href="?{% if pagination_query %}{{ pagination_query }}&amp;{% endif %}page={{ page.previous_page_number }}">Назад</a>{% endif %}
 Страница {{ page.number }} из {{ page.paginator.num_pages }}
-{% if page.has_next %}<a href="?q={{ query|urlencode }}&amp;type={% if selected_type %}{{ selected_type.pk }}{% endif %}&amp;page={{ page.next_page_number }}">Далее</a>{% endif %}
+{% if page.has_next %}<a href="?{% if pagination_query %}{{ pagination_query }}&amp;{% endif %}page={{ page.next_page_number }}">Далее</a>{% endif %}
 </body></html>

@@ -141,12 +141,15 @@ def search(request):
             filters.append(spec)
     products = products.distinct().order_by("title", "pk")
     page = Paginator(products, 20).get_page(request.GET.get("page", "1"))
+    page_query = request.GET.copy()
+    page_query.pop("page", None)
     return render(request, "catalog/search.html", {
         "page": page, "query": query,
         "categories": Category.objects.all(), "types": ProductType.objects.filter(active=True).select_related("category"),
         "brands": Brand.objects.all(),
         "selected_category": category_slug, "selected_brand": brand_slug, "selected_type": product_type,
         "filters": filters, "errors": errors,
+        "pagination_query": page_query.urlencode(),
     })
 
 
