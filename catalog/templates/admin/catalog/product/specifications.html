@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Главная</a> &rsaquo;
+<a href="{% url 'admin:catalog_product_changelist' %}">Модели</a> &rsaquo;
+<a href="{{ change_url }}">{{ product.title }}</a> &rsaquo; Характеристики</div>
+{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<p>Поля определяются типом товара «{{ product.product_type.name }}».
+Для добавления нового параметра используйте настройки типа товара в административной панели.</p>
+<form method="post">{% csrf_token %}
+{{ form.as_p }}
+<div class="submit-row">
+  <input type="submit" value="Сохранить характеристики" class="default">
+  <a href="{{ change_url }}">Отмена</a>
+</div></form>
+{% endblock %}

@@ -1,7 +1,14 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.core.exceptions import PermissionDenied
+from django.http import Http404
+from django.shortcuts import redirect
+from django.template.response import TemplateResponse
+from django.urls import path, reverse
+from django.utils.html import format_html
 
+from .admin_forms import SpecificationsForm
 from .models import (
-    AttributeDefinition, Brand, Category, Product, ProductAttributeValue,
+    AttributeDefinition, Brand, Category, Product,
     ProductType, ProductTypeAttribute, TrademarkGood,
 )
 
@@ -50,23 +57,56 @@ class AttributeDefinitionAdmin(admin.ModelAdmin):
     search_fields = ("name", "code")
 
 
-class ProductAttributeValueInline(admin.TabularInline):
-    model = ProductAttributeValue
-    extra = 0
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "attribute":
-            object_id = (request.resolver_match.kwargs or {}).get("object_id")
-            product = Product.objects.filter(pk=object_id).first() if object_id else None
-            if product:
-                ids = ProductTypeAttribute.objects.filter(product_type=product.product_type).values_list("attribute_id", flat=True)
-                kwargs["queryset"] = AttributeDefinition.objects.filter(pk__in=ids)
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("title", "product_type", "brand", "status")
+    list_display = ("title", "product_type", "brand", "status", "specifications_link")
     list_filter = ("status", "product_type")
     search_fields = ("title", "mpn", "model")
-    inlines = [ProductAttributeValueInline]
+
+    def get_readonly_fields(self, request, obj=None):
+        return ("specifications_link", "product_type") if obj else ()
+
+    @admin.display(description="Характеристики")
+    def specifications_link(self, obj):
+        if not obj or not obj.pk:
+            return "Сначала сохраните модель."
+        url = reverse("admin:catalog_product_specifications", args=[obj.pk])
+        return format_html('<a href="{}">Настроить характеристики</a>', url)
+
+    def get_urls(self):
+        extra = [
+            path(
+                "<path:object_id>/specifications/",
+                self.admin_site.admin_view(self.specifications_view),
+                name="catalog_product_specifications",
+            )
+        ]
+        return extra + super().get_urls()
+
+    def specifications_view(self, request, object_id):
+        product = self.get_object(request, object_id)
+        if product is None:
+            raise Http404("Модель не найдена.")
+        if not self.has_change_permission(request, product):
+            raise PermissionDenied
+        form = SpecificationsForm(
+            request.POST if request.method == "POST" else None,
+            product=product,
+        )
+        if request.method == "POST" and form.is_valid():
+            form.save()
+            messages.success(request, "Характеристики сохранены.")
+            return redirect(reverse("admin:catalog_product_change", args=[product.pk]))
+        context = {
+            **self.admin_site.each_context(request),
+            "opts": self.model._meta,
+            "original": product,
+            "product": product,
+            "title": f"Характеристики: {product.title}",
+            "form": form,
+            "change_url": reverse("admin:catalog_product_change", args=[product.pk]),
+            "has_change_permission": True,
+        }
+        return TemplateResponse(
+            request, "admin/catalog/product/specifications.html", context
+        )
