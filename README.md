@@ -30,11 +30,13 @@ docker compose exec web python manage.py createsuperuser
 
 ## Справочник из свидетельства
 
-Рядом с кодом **не хранится** выгрузка из пользовательского Google Диска. Загрузите утверждённый файл `MISTERCHIP_catalog_RU948080.xlsx` локально.
+В репозитории хранится проверенная CSV-копия `data/trademark_goods_ru948080.csv` из ранее согласованной таблицы. Исходный XLSX остаётся на Google Диске. Для первичной загрузки не требуется вручную скачивать или копировать файл.
 
 ```bash
+python manage.py import_goods --check-only
+python manage.py import_goods
+# Для повторной проверки непосредственно по XLSX:
 python manage.py import_goods /path/to/MISTERCHIP_catalog_RU948080.xlsx --check-only
-python manage.py import_goods /path/to/MISTERCHIP_catalog_RU948080.xlsx
 ```
 
 Команда проверяет заголовки, 11 допустимых категорий, ровно 373 уникальные позиции 1–373. Исходные наименования сохраняются без изменений. Повторный импорт обновляет существующие записи без дублей.
