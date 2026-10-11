@@ -68,3 +68,23 @@ th,td{padding:13px 12px;border-bottom:1px solid var(--line);vertical-align:top}
 .error-panel{max-width:700px;margin:auto;text-align:center}
 @media(max-width:850px){.category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.catalog-layout,.detail-layout{grid-template-columns:1fr}.filter-panel{order:2}.product-head{grid-template-columns:1fr}}
 @media(max-width:570px){.hero{padding:27px 23px}.hero-search{flex-direction:column}.category-grid,.product-grid{grid-template-columns:1fr}.search-result{grid-template-columns:1fr}.header-inner{min-height:64px}.container{padding:0 15px}main.container{padding-top:22px}.product-illustration{padding:20px}}
+
+/* Account and editorial screens */
+.nav{align-items:center;flex-wrap:wrap}
+.nav-logout{margin:0;display:inline-flex}
+.nav-logout button{font-size:14px;background:transparent;color:var(--link);border:0;padding:3px 0}
+.auth-panel,.article-form{max-width:760px;margin:20px auto}
+.auth-panel form,.article-form form{max-width:690px}
+.auth-panel input:not([type="checkbox"]),.article-form input:not([type="checkbox"]){max-width:100%}
+input[type="checkbox"],input[type="radio"]{width:auto;max-width:none;margin:0 7px 0 0}
+form ul{list-style:none;padding:0;margin:6px 0 18px}
+form ul li{margin:8px 0}
+form label{display:block;font-weight:600}
+form label:has(input[type="checkbox"]){display:flex;align-items:center;font-weight:400}
+textarea{width:100%;max-width:100%;padding:10px 12px;border:1px solid #bdc8d5;border-radius:10px;font:inherit;color:var(--ink)}
+.article-layout{max-width:920px;margin:0 auto}
+.article-layout header{margin-bottom:24px}
+.article-body{font-size:17px;line-height:1.8;overflow-wrap:anywhere}
+.inline-submit{display:inline-block;margin:6px 0}
+.inline-submit button{font-size:13px;padding:7px 11px}
+@media(max-width:630px){.header-inner{flex-wrap:wrap;align-items:start;padding-top:13px;padding-bottom:14px}.nav{gap:12px}.nav a{font-size:14px}}

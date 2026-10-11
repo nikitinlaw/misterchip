@@ -12,7 +12,8 @@ class AccountFlowTests(TestCase):
             "password1": "StrongPass987654!", "password2": "StrongPass987654!",
             "roles": ["author", "developer"],
         }, secure=True)
-        self.assertRedirects(response, reverse("account_dashboard"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], reverse("account_dashboard"))
         user = get_user_model().objects.get(username="maker")
         self.assertEqual(user.email, "maker@example.test")
         self.assertTrue(Profile.objects.filter(user=user).exists())
@@ -54,7 +55,8 @@ class AccountFlowTests(TestCase):
             "first_name": "Иван", "display_name": "Мастер",
             "bio": "Разработка электроники", "roles": ["author", "developer"],
         }, secure=True)
-        self.assertRedirects(response, reverse("account_dashboard"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], reverse("account_dashboard"))
         self.assertTrue(user.business_roles.filter(role="seller").exists())
         self.assertTrue(user.business_roles.filter(role="developer").exists())
         public = self.client.get(reverse("public_profile", args=["author"]), secure=True)
@@ -69,7 +71,10 @@ class AccountFlowTests(TestCase):
         logged_in = self.client.post(reverse("login"), {
             "username": "author", "password": "A1SecurePassword!"
         }, secure=True)
-        self.assertRedirects(logged_in, reverse("account_dashboard"))
+        self.assertEqual(logged_in.status_code, 302)
+        self.assertEqual(logged_in["Location"], reverse("account_dashboard"))
         self.assertEqual(self.client.get(reverse("account_dashboard"), secure=True).status_code, 200)
         self.assertEqual(self.client.get(reverse("logout"), secure=True).status_code, 405)
-        self.assertRedirects(self.client.post(reverse("logout"), secure=True), reverse("home"))
+        logout = self.client.post(reverse("logout"), secure=True)
+        self.assertEqual(logout.status_code, 302)
+        self.assertEqual(logout["Location"], reverse("home"))

@@ -7,5 +7,5 @@ urlpatterns = [
     path("new/", views.article_create, name="article_create"),
     path("edit/<int:pk>/", views.article_edit, name="article_edit"),
     path("submit/<int:pk>/", views.article_submit, name="article_submit"),
-    path("<slug:slug>/", views.article_detail, name="article_detail"),
+    path("<str:slug>/", views.article_detail, name="article_detail"),
 ]

@@ -175,3 +175,24 @@ class EditorialWorkflowTests(TestCase):
         response = self.client.post(reverse("article_create"), data, secure=True)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Article.objects.exists())
+
+    def test_russian_article_slug_is_resolvable(self):
+        self.client.force_login(self.author)
+        response = self.client.post(reverse("article_create"), self.data, secure=True)
+        self.assertEqual(response.status_code, 302)
+        article = Article.objects.get(author=self.author)
+        self.assertIn("как-выбрать", article.slug)
+        article.status = Article.Status.PUBLISHED
+        article.published_at = timezone.now()
+        article.save()
+        self.assertEqual(self.client.get(reverse("article_detail", args=[article.slug]), secure=True).status_code, 200)
+
+    def test_product_page_only_shows_published_articles(self):
+        draft = self.new_draft()
+        draft.related_products.add(self.product)
+        product_page = reverse("product_detail", args=[self.product.slug])
+        self.assertNotContains(self.client.get(product_page, secure=True), draft.title)
+        draft.status = Article.Status.PUBLISHED
+        draft.published_at = timezone.now()
+        draft.save()
+        self.assertContains(self.client.get(product_page, secure=True), draft.title)

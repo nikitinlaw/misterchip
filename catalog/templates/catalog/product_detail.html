@@ -48,4 +48,18 @@
     </section>
   </aside>
 </div>
+<section class="section">
+  <span class="eyebrow">Читайте также</span>
+  <h2>Статьи и инструкции об этой модели</h2>
+  <div class="product-grid">
+    {% for article in related_articles %}
+      <article class="product-card">
+        <span class="eyebrow">{{ article.get_kind_display }}</span>
+        <h3><a href="{% url 'article_detail' article.slug %}">{{ article.title }}</a></h3>
+        <p>{{ article.summary }}</p>
+        <p class="small subtle">Автор: {{ article.author.username }}</p>
+      </article>
+    {% empty %}<p class="subtle">Связанных опубликованных материалов пока нет.</p>{% endfor %}
+  </div>
+</section>
 {% endblock %}
