@@ -1,0 +1,8 @@
+{% extends "catalog/base.html" %}
+{% block title %}Проверьте электронную почту — MISTERCHIP{% endblock %}
+{% block content %}
+<section class="panel auth-panel">
+<h1>Проверьте электронную почту</h1>
+<p>Если регистрация или запрос подтверждения прошли успешно, письмо отправлено на указанный адрес. Ссылка действительна 24 часа.</p><p>Не получили письмо? <a href="{% url 'account_resend' %}">Отправить повторно</a>.</p>
+</section>
+{% endblock %}

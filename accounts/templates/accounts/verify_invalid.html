@@ -1,0 +1,8 @@
+{% extends "catalog/base.html" %}
+{% block title %}Ссылка недействительна — MISTERCHIP{% endblock %}
+{% block content %}
+<section class="panel auth-panel">
+<h1>Ссылка недействительна</h1>
+<p>Ссылка подтверждения устарела, уже использована или повреждена.</p><a href="{% url 'account_resend' %}">Запросить новое подтверждение</a>
+</section>
+{% endblock %}

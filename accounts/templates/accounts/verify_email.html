@@ -1,0 +1,8 @@
+{% extends "catalog/base.html" %}
+{% block title %}Подтвердить адрес — MISTERCHIP{% endblock %}
+{% block content %}
+<section class="panel auth-panel">
+<h1>Подтвердить адрес</h1>
+<p>Нажмите кнопку, чтобы подтвердить электронную почту и активировать учётную запись.</p><form method="post">{% csrf_token %}<button type="submit">Подтвердить электронную почту</button></form>
+</section>
+{% endblock %}

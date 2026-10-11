@@ -1,0 +1,8 @@
+{% extends "catalog/base.html" %}
+{% block title %}Повторить подтверждение — MISTERCHIP{% endblock %}
+{% block content %}
+<section class="panel auth-panel">
+<h1>Повторить подтверждение</h1>
+<p>Укажите адрес, использованный при регистрации.</p><form method="post">{% csrf_token %}<label for="resend-email">Электронная почта</label><input id="resend-email" type="email" name="email" required maxlength="254"><button type="submit">Отправить ссылку</button></form>
+</section>
+{% endblock %}

@@ -16,7 +16,15 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U misterchip -d misterchip"
           --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 10
     env:
+      REDIS_URL: redis://127.0.0.1:6379/1
+      DJANGO_EMAIL_BACKEND: django.core.mail.backends.locmem.EmailBackend
       DJANGO_DEBUG: "0"
       DJANGO_SECRET_KEY: "not-for-production-automated-tests-only-secret"
       DB_NAME: misterchip

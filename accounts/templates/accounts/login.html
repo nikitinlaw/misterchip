@@ -5,6 +5,7 @@
   <form method="post">{% csrf_token %}{{ form.as_p }}
   {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
   <button type="submit">Войти</button></form>
+  <p><a href="{% url 'password_reset' %}">Забыли пароль?</a> · <a href="{% url 'account_resend' %}">Повторно отправить подтверждение email</a></p>
   <p>Нет учётной записи? <a href="{% url 'account_register' %}">Зарегистрироваться</a></p>
 </section>
 {% endblock %}

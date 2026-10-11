@@ -36,6 +36,7 @@ class RegistrationForm(UserCreationForm):
             return super().save(commit=False)
         user = super().save(commit=False)
         user.email = self.cleaned_data["email"]
+        user.is_active = False  # Must confirm email before authenticating.
         user.save()
         Profile.objects.create(user=user)
         UserRole.objects.get_or_create(user=user, role=UserRole.Role.BUYER)
