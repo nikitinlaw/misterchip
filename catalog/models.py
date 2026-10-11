@@ -188,34 +188,3 @@ class ProductAttributeValue(models.Model):
 
     def __str__(self):
         return f"{self.product}: {self.attribute}"
-
-
-class ProductReference(models.Model):
-    """Link to external technical documentation; no copying of third-party files."""
-
-    class Kind(models.TextChoices):
-        DATASHEET = "datasheet", "Спецификация производителя"
-        MANUAL = "manual", "Инструкция"
-        DRIVER = "driver", "Драйвер или утилита"
-        OTHER = "other", "Другой технический источник"
-
-    product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="references",
-    )
-    kind = models.CharField(max_length=20, choices=Kind.choices)
-    title = models.CharField(max_length=220)
-    url = models.URLField(max_length=1000)
-    publisher = models.CharField(max_length=180)
-    official = models.BooleanField(default=False)
-    verified_on = models.DateField(blank=True, null=True)
-
-    class Meta:
-        ordering = ["kind", "title"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["product", "url"], name="uniq_product_reference_url",
-            ),
-        ]
-
-    def __str__(self):
-        return f"{self.product}: {self.title}"

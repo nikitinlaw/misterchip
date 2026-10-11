@@ -9,7 +9,7 @@ from django.utils.html import format_html
 from .admin_forms import SpecificationsForm
 from .models import (
     AttributeDefinition, Brand, Category, Product,
-    ProductType, ProductTypeAttribute, ProductReference, TrademarkGood,
+    ProductType, ProductTypeAttribute, TrademarkGood,
 )
 
 
@@ -57,17 +57,11 @@ class AttributeDefinitionAdmin(admin.ModelAdmin):
     search_fields = ("name", "code")
 
 
-class ProductReferenceInline(admin.TabularInline):
-    model = ProductReference
-    extra = 0
-
-
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ("title", "product_type", "brand", "status", "specifications_link")
     list_filter = ("status", "product_type")
     search_fields = ("title", "mpn", "model")
-    inlines = [ProductReferenceInline]
 
     def get_readonly_fields(self, request, obj=None):
         return ("specifications_link", "product_type") if obj else ()
