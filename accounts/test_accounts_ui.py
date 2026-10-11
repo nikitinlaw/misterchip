@@ -13,12 +13,14 @@ class AccountFlowTests(TestCase):
             "roles": ["author", "developer"],
         }, secure=True)
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response["Location"], reverse("account_dashboard"))
+        self.assertEqual(response["Location"], reverse("account_verification_sent"))
         user = get_user_model().objects.get(username="maker")
         self.assertEqual(user.email, "maker@example.test")
         self.assertTrue(Profile.objects.filter(user=user).exists())
         self.assertEqual(set(user.business_roles.values_list("role", flat=True)), {"buyer", "author", "developer"})
-        self.assertEqual(str(int("_auth_user_id" in self.client.session)), "1")
+        self.assertFalse(user.is_active)
+        self.assertNotIn("_auth_user_id", self.client.session)
+        self.assertEqual(self.client.get(reverse("account_dashboard"), secure=True).status_code, 302)
 
     def test_duplicate_email_case_insensitive(self):
         get_user_model().objects.create_user(
