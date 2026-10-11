@@ -1,0 +1,11 @@
+{% extends "catalog/base.html" %}
+{% block title %}{% if editing %}Редактировать материал{% else %}Новый материал{% endif %} — MISTERCHIP{% endblock %}
+{% block content %}
+<section class="panel article-form">
+<span class="eyebrow">Редакция MISTERCHIP</span>
+<h1>{% if editing %}Редактировать черновик{% else %}Новый материал{% endif %}</h1>
+<p>Текст отображается как обычный текст: HTML-разметка и внешние скрипты не выполняются. Укажите первоисточники и материалы, права на которые вам принадлежат.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Сохранить черновик</button></form>
+<p><a href="{% url 'my_articles' %}">← Мои публикации</a></p>
+</section>
+{% endblock %}

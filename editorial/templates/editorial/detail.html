@@ -1,0 +1,31 @@
+{% extends "catalog/base.html" %}
+{% block title %}{{ article.title }} — MISTERCHIP{% endblock %}
+{% block description %}{{ article.summary }}{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'home' %}">Главная</a><span>›</span>
+<a href="{% url 'article_list' %}">Публикации</a><span>›</span><span>{{ article.get_kind_display }}</span></div>
+<article class="article-layout">
+<header>
+  <span class="eyebrow">{{ article.get_kind_display }}</span>
+  <h1>{{ article.title }}</h1>
+  <p class="lede">{{ article.summary }}</p>
+  <p class="small subtle">Автор: <a href="{% url 'public_profile' article.author.username %}">{{ article.author.username }}</a>
+  {% if article.published_at %} · {{ article.published_at|date:"d.m.Y" }}{% endif %}</p>
+</header>
+<section class="panel article-body">{{ article.body|linebreaks }}</section>
+{% if article.source_url or article.video_url %}
+  <section class="panel"><h2>Дополнительные материалы</h2>
+  {% if article.source_url %}<p><a href="{{ article.source_url }}" target="_blank" rel="noopener noreferrer nofollow">Первоисточник ↗</a></p>{% endif %}
+  {% if article.video_url %}<p><a href="{{ article.video_url }}" target="_blank" rel="noopener noreferrer nofollow">Видео ↗</a></p>{% endif %}
+  </section>
+{% endif %}
+<section class="section"><h2>Товары, упомянутые в публикации</h2>
+<div class="product-grid">
+  {% for product in products %}
+    <article class="product-card"><span class="eyebrow">{{ product.product_type.name }}</span>
+    <h3><a href="{% url 'product_detail' product.slug %}">{{ product.title }}</a></h3>
+    <p>{{ product.brand.name|default:"" }}</p></article>
+  {% empty %}<p class="subtle">Автор не связал материал с конкретными моделями.</p>{% endfor %}
+</div></section>
+</article>
+{% endblock %}

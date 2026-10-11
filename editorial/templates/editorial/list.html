@@ -1,0 +1,26 @@
+{% extends "catalog/base.html" %}
+{% block title %}Статьи и обзоры — MISTERCHIP{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <span class="eyebrow">Редакция MISTERCHIP</span>
+  <h1>Статьи, обзоры и инструкции</h1>
+  <p class="lede">Проверенные материалы авторов, связанные с конкретными моделями электроники.</p>
+  {% if request.user.is_authenticated %}<a class="secondary-action" href="{% url 'my_articles' %}">Мои публикации →</a>{% endif %}
+</section>
+<section class="product-grid">
+{% for article in page %}
+  <article class="product-card">
+    <span class="eyebrow">{{ article.get_kind_display }}</span>
+    <h2><a href="{% url 'article_detail' article.slug %}">{{ article.title }}</a></h2>
+    <p>{{ article.summary }}</p>
+    <p class="small subtle">Автор: <a href="{% url 'public_profile' article.author.username %}">{{ article.author.username }}</a></p>
+    {% if article.published_at %}<time class="small subtle">{{ article.published_at|date:"d.m.Y" }}</time>{% endif %}
+  </article>
+{% empty %}<p class="empty-state">Опубликованных материалов пока нет.</p>{% endfor %}
+</section>
+<nav class="pagination" aria-label="Страницы">
+{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">← Назад</a>{% endif %}
+<span>Страница {{ page.number }} из {{ page.paginator.num_pages }}</span>
+{% if page.has_next %}<a href="?page={{ page.next_page_number }}">Далее →</a>{% endif %}
+</nav>
+{% endblock %}

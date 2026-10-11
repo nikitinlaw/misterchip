@@ -8,6 +8,7 @@
     {% for entry in roles %}<span class="tag">{{ entry.get_role_display }}</span>{% empty %}не назначены{% endfor %}
   </p>
   <p><a href="{% url 'public_profile' request.user.username %}">Посмотреть публичную страницу</a></p>
+  <p><a class="secondary-action" href="{% url 'my_articles' %}">Мои статьи и черновики →</a></p>
   <h2>Мой профиль</h2>
   <p class="subtle">Автором, обзорщиком и разработчиком можно быть одновременно. Права редактора нельзя получить самостоятельно.</p>
   <form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Сохранить профиль</button></form>

@@ -1,0 +1,24 @@
+{% extends "catalog/base.html" %}
+{% block title %}Мои публикации — MISTERCHIP{% endblock %}
+{% block content %}
+<section class="page-heading"><span class="eyebrow">Личный кабинет</span><h1>Мои публикации</h1>
+{% if can_author %}<a class="secondary-action" href="{% url 'article_create' %}">Написать материал →</a>
+{% else %}<p class="subtle">Включите роль «Автор» в <a href="{% url 'account_dashboard' %}">профиле</a>, чтобы публиковать статьи.</p>{% endif %}
+</section>
+<div class="search-result-list">
+{% for article in articles %}
+  <article class="search-result">
+    <div><h2>{{ article.title }}</h2><p class="small subtle">{{ article.get_kind_display }} · {{ article.get_status_display }}</p>
+      {% if article.status == "draft" or article.status == "rejected" %}
+        <a href="{% url 'article_edit' article.pk %}">Редактировать</a>
+        <form method="post" action="{% url 'article_submit' article.pk %}" class="inline-submit">
+          {% csrf_token %}<button type="submit">Отправить на модерацию</button>
+        </form>
+      {% elif article.status == "published" %}
+        <a href="{% url 'article_detail' article.slug %}">Смотреть публикацию</a>
+      {% else %}<span class="small subtle">Редактирование недоступно до решения редактора.</span>{% endif %}
+    </div>
+  </article>
+{% empty %}<p class="empty-state">У вас ещё нет публикаций.</p>{% endfor %}
+</div>
+{% endblock %}
