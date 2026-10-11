@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Поиск электроники — MISTERCHIP</title></head>
+<body><p><a href="{% url 'home' %}">← MISTERCHIP</a></p><h1>Каталог электроники</h1>
+<form method="get" action="{% url 'catalog_search' %}">
+<label>Поиск по названию или артикулу <input name="q" value="{{ query }}"></label>
+<label>Раздел <select name="category"><option value="">Все разделы</option>
+{% for category in categories %}<option value="{{ category.slug }}"{% if selected_category == category.slug %} selected{% endif %}>{{ category.name }}</option>{% endfor %}</select></label>
+<label>Тип товара <select name="type"><option value="">Все типы</option>
+{% for type in types %}<option value="{{ type.pk }}"{% if selected_type.pk == type.pk %} selected{% endif %}>{{ type.category.name }} — {{ type.name }}</option>{% endfor %}</select></label>
+<label>Производитель <select name="brand"><option value="">Все производители</option>
+{% for brand in brands %}<option value="{{ brand.slug }}"{% if selected_brand == brand.slug %} selected{% endif %}>{{ brand.name }}</option>{% endfor %}</select></label>
+{% if selected_type %}<fieldset><legend>Характеристики: {{ selected_type.name }}</legend>
+{% for filter in filters %}
+{% if filter.kind == "range" %}
+<p>{{ filter.label }} {% if filter.unit %}({{ filter.unit }}){% endif %}
+<label>От <input type="number" step="any" name="{{ filter.min_key }}" value="{{ filter.min_value }}"></label>
+<label>До <input type="number" step="any" name="{{ filter.max_key }}" value="{{ filter.max_value }}"></label></p>
+{% elif filter.kind == "choice" %}
+<p><label>{{ filter.label }} <select name="{{ filter.name }}"><option value="">Любое</option>
+{% for option in filter.choices %}<option value="{{ option }}"{% if filter.value == option %} selected{% endif %}>{{ option }}</option>{% endfor %}
+</select></label></p>
+{% elif filter.kind == "boolean" %}
+<p><label>{{ filter.label }} <select name="{{ filter.name }}">
+<option value="">Любое</option><option value="true"{% if filter.value == "true" %} selected{% endif %}>Да</option><option value="false"{% if filter.value == "false" %} selected{% endif %}>Нет</option>
+</select></label></p>
+{% else %}<p><label>{{ filter.label }} <input name="{{ filter.name }}" value="{{ filter.value }}"></label></p>{% endif %}
+{% endfor %}</fieldset>{% endif %}
+<button type="submit">Найти</button><a href="{% url 'catalog_search' %}">Сбросить</a>
+</form>
+{% for error in errors %}<p role="alert">{{ error }}</p>{% endfor %}
+<h2>Модели</h2>
+<form action="{% url 'catalog_compare' %}" method="get">
+<ul>{% for product in page %}
+<li><label><input type="checkbox" name="ids" value="{{ product.pk }}"> Сравнить</label>
+<a href="{% url 'product_detail' product.slug %}">{{ product.title }}</a> ({{ product.product_type.name }})
+</li>{% empty %}<li>Модели не найдены.</li>{% endfor %}</ul>
+<button type="submit">Сравнить выбранные модели</button>
+</form>
+{% if page.has_previous %}<a href="?q={{ query|urlencode }}&amp;type={% if selected_type %}{{ selected_type.pk }}{% endif %}&amp;page={{ page.previous_page_number }}">Назад</a>{% endif %}
+Страница {{ page.number }} из {{ page.paginator.num_pages }}
+{% if page.has_next %}<a href="?q={{ query|urlencode }}&amp;type={% if selected_type %}{{ selected_type.pk }}{% endif %}&amp;page={{ page.next_page_number }}">Далее</a>{% endif %}
+</body></html>

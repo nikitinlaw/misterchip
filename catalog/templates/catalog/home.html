@@ -2,6 +2,7 @@
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MISTERCHIP — каталог электроники</title></head><body>
 <h1>MISTERCHIP</h1><p>Каталог электроники, справочная информация и характеристики.</p>
-<h2>Разделы</h2><ul>{% for category in categories %}<li>{{ category.name }}</li>{% empty %}<li>Разделы пока не загружены.</li>{% endfor %}</ul>
+<p><a href="{% url 'catalog_search' %}">Поиск по товарам и техническим параметрам</a></p>
+<h2>Разделы</h2><ul>{% for category in categories %}<li><a href="{% url 'catalog_search' %}?category={{ category.slug }}">{{ category.name }}</a></li>{% empty %}<li>Разделы пока не загружены.</li>{% endfor %}</ul>
 <h2>Модели</h2><ul>{% for product in products %}<li><a href="{% url 'product_detail' product.slug %}">{{ product.title }}</a></li>{% empty %}<li>Опубликованных моделей пока нет.</li>{% endfor %}</ul>
 </body></html>

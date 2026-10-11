@@ -6,7 +6,6 @@
 <p>{{ product.product_type.name }} · {% if product.brand %}{{ product.brand.name }}{% endif %}</p>
 <p>{{ product.description }}</p>
 <h2>Характеристики</h2>
-<table><tbody>{% for v in values %}<tr><th>{{ v.attribute.name }}</th><td>
-{% if v.number_value != None %}{{ v.number_value }} {{ v.unit }}{% elif v.integer_value != None %}{{ v.integer_value }}{% elif v.boolean_value != None %}{% if v.boolean_value %}Да{% else %}Нет{% endif %}{% else %}{{ v.text_value }}{% endif %}
-</td></tr>{% empty %}<tr><td>Характеристики ещё не добавлены.</td></tr>{% endfor %}</tbody></table>
+<table><tbody>{% for row in characteristics %}<tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>{% empty %}<tr><td>Характеристики ещё не добавлены.</td></tr>{% endfor %}</tbody></table>
+<p><a href="{% url 'catalog_search' %}?type={{ product.product_type_id }}">Сравнить с другими моделями этого типа</a></p>
 </body></html>
