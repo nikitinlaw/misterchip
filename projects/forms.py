@@ -59,6 +59,11 @@ class ComponentForm(forms.ModelForm):
         self.fields["product"].queryset = Product.objects.filter(
             status=Product.Status.PUBLISHED,
         ).order_by("title")
+        if not self.instance.pk:
+            # Avoid marking untouched extra BOM rows as changed because the
+            # model's quantity=1 and unit='pcs' defaults would require a name.
+            self.initial["quantity"] = None
+            self.initial["unit"] = None
 
 
 class ResourceForm(forms.ModelForm):
