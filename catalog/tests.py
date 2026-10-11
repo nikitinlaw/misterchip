@@ -57,4 +57,4 @@ class FlexibleCharacteristicsTests(TestCase):
         self.assertContains(self.client.get(reverse("product_detail", args=["ram-test"]), secure=True), "Модуль памяти")
         self.ram_product.status = Product.Status.DRAFT
         self.ram_product.save()
-        self.assertEqual(self.client.get(reverse("product_detail", args=["ram-test"])).status_code, 404)
+        self.assertEqual(self.client.get(reverse("product_detail", args=["ram-test"]), secure=True).status_code, 404)
