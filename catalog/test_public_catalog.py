@@ -47,6 +47,15 @@ class PublicCatalogTests(TestCase):
             product=self.third, attribute=self.ddr, text_value="DDR5"
         )
 
+    def test_filter_layout_and_comparison_controls(self):
+        response = self.client.get(reverse("catalog_search"), secure=True)
+        self.assertContains(response, 'class="filter-form"')
+        self.assertContains(response, 'class="catalog-results"')
+        for field in ('q', 'category', 'type', 'brand'):
+            self.assertContains(response, 'name="' + field + '"')
+        self.assertContains(response, 'name="ids"', count=3)
+        self.assertContains(response, 'Применить фильтры')
+
     def test_search_numeric_range_in_canonical_units(self):
         response = self.client.get(reverse("catalog_search"), {
             "type": str(self.resistor.pk),

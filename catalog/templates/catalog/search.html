@@ -2,62 +2,114 @@
 {% block title %}Поиск моделей — MISTERCHIP{% endblock %}
 {% block content %}
 <div class="breadcrumbs"><a href="{% url 'home' %}">Главная</a><span>›</span><span>Поиск по каталогу</span></div>
-<div class="page-heading"><span class="eyebrow">Каталог электроники</span><h1>Поиск и фильтры</h1>
-<p class="subtle">Подберите модели по артикулу и точным техническим параметрам.</p></div>
+<div class="page-heading">
+  <span class="eyebrow">Каталог электроники</span><h1>Поиск и фильтры</h1>
+  <p class="subtle">Подберите модели по артикулу и точным техническим параметрам.</p>
+</div>
 <div class="catalog-layout">
-  <aside class="panel filter-panel">
+  <aside class="panel filter-panel" aria-label="Фильтрация товаров">
     <h2>Фильтры</h2>
-    <form method="get" action="{% url 'catalog_search' %}">
-      <label for="q">Название или артикул</label><input id="q" name="q" value="{{ query }}">
-      <label for="category">Раздел</label><select id="category" name="category"><option value="">Все разделы</option>
-      {% for category in categories %}<option value="{{ category.slug }}"{% if selected_category == category.slug %} selected{% endif %}>{{ category.name }}</option>{% endfor %}</select>
-      <label for="type">Тип товара</label><select id="type" name="type"><option value="">Все типы</option>
-      {% for type in types %}<option value="{{ type.pk }}"{% if selected_type.pk == type.pk %} selected{% endif %}>{{ type.category.name }} — {{ type.name }}</option>{% endfor %}</select>
-      <label for="brand">Производитель</label><select id="brand" name="brand"><option value="">Все производители</option>
-      {% for brand in brands %}<option value="{{ brand.slug }}"{% if selected_brand == brand.slug %} selected{% endif %}>{{ brand.name }}</option>{% endfor %}</select>
-      {% if selected_type %}<fieldset><legend>Параметры: {{ selected_type.name }}</legend>
-      {% for filter in filters %}
-        {% if filter.kind == "range" %}
-          <p class="filter-name">{{ filter.label }} {% if filter.unit %}({{ filter.unit }}){% endif %}</p>
-          <div class="filter-pair">
-            <label>От <input type="number" step="any" name="{{ filter.min_key }}" value="{{ filter.min_value }}"></label>
-            <label>До <input type="number" step="any" name="{{ filter.max_key }}" value="{{ filter.max_value }}"></label>
+    <form method="get" action="{% url 'catalog_search' %}" class="filter-form">
+      <div class="filter-field">
+        <label for="q">Название или артикул</label>
+        <input id="q" name="q" value="{{ query }}" type="search" placeholder="Название, модель, артикул">
+      </div>
+      <div class="filter-field">
+        <label for="category">Раздел</label>
+        <select id="category" name="category">
+          <option value="">Все разделы</option>
+          {% for category in categories %}
+          <option value="{{ category.slug }}"{% if selected_category == category.slug %} selected{% endif %}>{{ category.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="type">Тип товара</label>
+        <select id="type" name="type">
+          <option value="">Все типы</option>
+          {% for type in types %}
+          <option value="{{ type.pk }}"{% if selected_type.pk == type.pk %} selected{% endif %}>{{ type.category.name }} — {{ type.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="brand">Производитель</label>
+        <select id="brand" name="brand">
+          <option value="">Все производители</option>
+          {% for brand in brands %}
+          <option value="{{ brand.slug }}"{% if selected_brand == brand.slug %} selected{% endif %}>{{ brand.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% if selected_type %}
+      <fieldset class="filter-specs">
+        <legend>Параметры: {{ selected_type.name }}</legend>
+        <div class="filter-specs-grid">
+          {% for filter in filters %}
+          {% if filter.kind == "range" %}
+          <div class="filter-field">
+            <p class="filter-name">{{ filter.label }} {% if filter.unit %}({{ filter.unit }}){% endif %}</p>
+            <div class="filter-pair">
+              <label>От <input type="number" step="any" name="{{ filter.min_key }}" value="{{ filter.min_value }}"></label>
+              <label>До <input type="number" step="any" name="{{ filter.max_key }}" value="{{ filter.max_value }}"></label>
+            </div>
           </div>
-        {% elif filter.kind == "choice" %}
-          <label>{{ filter.label }} <select name="{{ filter.name }}"><option value="">Любое</option>
-          {% for option in filter.choices %}<option value="{{ option }}"{% if filter.value == option %} selected{% endif %}>{{ option }}</option>{% endfor %}</select></label>
-        {% elif filter.kind == "boolean" %}
-          <label>{{ filter.label }} <select name="{{ filter.name }}"><option value="">Любое</option>
-          <option value="true"{% if filter.value == "true" %} selected{% endif %}>Да</option>
-          <option value="false"{% if filter.value == "false" %} selected{% endif %}>Нет</option></select></label>
-        {% else %}<label>{{ filter.label }}<input name="{{ filter.name }}" value="{{ filter.value }}"></label>{% endif %}
-      {% endfor %}</fieldset>{% endif %}
-      <button class="full-width" type="submit">Применить</button>
-      <a class="clear-filter" href="{% url 'catalog_search' %}">Сбросить фильтры</a>
+          {% elif filter.kind == "choice" %}
+          <label class="filter-field">{{ filter.label }}
+            <select name="{{ filter.name }}">
+              <option value="">Любое</option>
+              {% for option in filter.choices %}<option value="{{ option }}"{% if filter.value == option %} selected{% endif %}>{{ option }}</option>{% endfor %}
+            </select>
+          </label>
+          {% elif filter.kind == "boolean" %}
+          <label class="filter-field">{{ filter.label }}
+            <select name="{{ filter.name }}">
+              <option value="">Любое</option>
+              <option value="true"{% if filter.value == "true" %} selected{% endif %}>Да</option>
+              <option value="false"{% if filter.value == "false" %} selected{% endif %}>Нет</option>
+            </select>
+          </label>
+          {% else %}
+          <label class="filter-field">{{ filter.label }}<input name="{{ filter.name }}" value="{{ filter.value }}"></label>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </fieldset>
+      {% endif %}
+      <div class="filter-actions">
+        <button type="submit">Применить фильтры</button>
+        <a class="clear-filter" href="{% url 'catalog_search' %}">Сбросить</a>
+      </div>
     </form>
   </aside>
-  <section>
-    <div class="section-heading"><div><h2>Модели</h2><p class="small subtle">Найдено: {{ page.paginator.count }}</p></div></div>
+  <section class="catalog-results" aria-label="Найденные модели">
+    <div class="section-heading">
+      <div><h2>Модели</h2><p class="small subtle">Найдено: {{ page.paginator.count }}</p></div>
+    </div>
     {% for error in errors %}<p role="alert" class="form-error">{{ error }}</p>{% endfor %}
     <form action="{% url 'catalog_compare' %}" method="get">
       <div class="search-result-list">
         {% for product in page %}
-          <article class="search-result">
+        <article class="search-result">
+          <div class="search-result-info">
+            <span class="eyebrow">{{ product.product_type.name }} · {{ product.brand.name }}</span>
+            <h3><a href="{% url 'product_detail' product.slug %}">{{ product.title }}</a></h3>
+            <p class="small subtle">MPN: {{ product.mpn }}</p>
+          </div>
+          <div class="search-result-actions">
+            <span class="tag">Без цены</span>
             <label class="compare-check"><input type="checkbox" name="ids" value="{{ product.pk }}"> Сравнить</label>
-            <div><span class="eyebrow">{{ product.product_type.name }} · {{ product.brand.name }}</span>
-              <h3><a href="{% url 'product_detail' product.slug %}">{{ product.title }}</a></h3>
-              <p class="small subtle">MPN: {{ product.mpn }}</p>
-            </div><span class="tag">Без цены</span>
-          </article>
+          </div>
+        </article>
         {% empty %}<p class="empty-state">По выбранным условиям модели не найдены.</p>{% endfor %}
       </div>
-      <p class="small subtle">Для сравнения отметьте от 2 до 4 моделей одного типа.</p>
+      <p class="small subtle compare-note">Для сравнения отметьте от 2 до 4 моделей одного типа.</p>
       <button type="submit" class="secondary-action">Сравнить выбранные модели →</button>
     </form>
     <nav class="pagination" aria-label="Страницы каталога">
-    {% if page.has_previous %}<a href="?{% if pagination_query %}{{ pagination_query }}&amp;{% endif %}page={{ page.previous_page_number }}">← Назад</a>{% endif %}
-    <span>Страница {{ page.number }} из {{ page.paginator.num_pages }}</span>
-    {% if page.has_next %}<a href="?{% if pagination_query %}{{ pagination_query }}&amp;{% endif %}page={{ page.next_page_number }}">Далее →</a>{% endif %}
+      {% if page.has_previous %}<a href="?{% if pagination_query %}{{ pagination_query }}&amp;{% endif %}page={{ page.previous_page_number }}">← Назад</a>{% endif %}
+      <span>Страница {{ page.number }} из {{ page.paginator.num_pages }}</span>
+      {% if page.has_next %}<a href="?{% if pagination_query %}{{ pagination_query }}&amp;{% endif %}page={{ page.next_page_number }}">Далее →</a>{% endif %}
     </nav>
   </section>
 </div>

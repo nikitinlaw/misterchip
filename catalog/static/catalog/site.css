@@ -344,3 +344,88 @@ textarea{padding:9px 11px}
   .hero{padding:21px 17px}
   .category-tile{padding:13px}
 }
+
+/* MISTERCHIP UI v2: compact catalog on laptop screens.
+   Font uses locally installed family/fallbacks; no third-party tracking. */
+:root{--ui-font:"Avenir Next","Helvetica Neue","Segoe UI",Arial,sans-serif}
+body{font-family:var(--ui-font);letter-spacing:-.006em}
+button,input,select,textarea{font-family:inherit}
+.brand{
+  display:inline-flex;align-items:center;gap:8px;flex-shrink:0;
+  text-decoration:none;font-size:23px;line-height:1;letter-spacing:-.045em;
+  font-weight:800;
+}
+.brand:hover{text-decoration:none}
+.brand-wordmark{white-space:nowrap}
+.brand-mister{color:#17263f}
+.brand-chip{color:#276eb8}
+.brand-symbol{
+  order:2;width:27px;height:27px;border-radius:6px;
+  font-size:16px;background:#e7f1fb;color:#276eb8;
+}
+/* Shared filter controls with predictable dimensions */
+.filter-panel h2{font-size:19px;margin:0 0 12px}
+.filter-form{display:flex;flex-direction:column;gap:10px;min-width:0}
+.filter-field{min-width:0}
+.filter-field label,.filter-field.filter-field{font-size:14px;font-weight:600}
+.filter-field label{display:block;margin-bottom:5px}
+.filter-field input,.filter-field select,
+.filter-field.filter-field > input,.filter-field.filter-field > select{
+  display:block;margin:0;width:100%;min-width:0;max-width:100%;
+  text-overflow:ellipsis;overflow:hidden;font-size:14px;
+  min-height:42px;
+}
+.filter-field:has(>select){min-width:0}
+.filter-form .filter-pair{gap:8px}
+.filter-pair label{min-width:0;flex:1}
+.filter-pair input{width:100%;min-width:0}
+.filter-specs{min-width:0;margin:3px 0 0;padding:12px 0 0}
+.filter-specs legend{font-size:14px;font-weight:700}
+.filter-specs-grid{display:grid;grid-template-columns:1fr;gap:11px}
+.filter-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.filter-actions button{flex:1;min-width:145px;padding:9px 12px;white-space:nowrap}
+.filter-actions .clear-filter{display:inline-block;text-align:center;margin:0;font-size:13px}
+.catalog-results{min-width:0}
+.search-result{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:15px;align-items:center}
+.search-result-info{min-width:0}
+.search-result-info h3{margin:5px 0;overflow-wrap:anywhere}
+.search-result-info p{margin:0}
+.search-result-actions{display:flex;flex-direction:column;align-items:flex-end;gap:14px;justify-content:center}
+.search-result-actions .compare-check{white-space:nowrap;min-height:26px;cursor:pointer}
+.search-result-actions .tag{align-self:flex-end}
+.compare-note{margin:14px 0 9px}
+
+/* At ordinary laptop sizes, put the filters above results instead of
+   forcing them into a narrow sidebar beside cards. */
+@media(max-width:1599px){
+  .catalog-layout{grid-template-columns:minmax(0,1fr);gap:17px}
+  .filter-panel{order:0;padding:16px 19px}
+  .filter-panel h2{margin-bottom:9px}
+  .filter-form{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:end}
+  .filter-specs{grid-column:1/-1;padding-top:10px}
+  .filter-specs-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .filter-actions{grid-column:1/-1;justify-content:flex-end}
+  .filter-actions button{flex:0 0 auto}
+  .filter-panel .clear-filter{margin:0}
+  .catalog-results .section-heading{margin-bottom:12px}
+}
+@media(min-width:1101px) and (max-width:1599px){
+  .container{max-width:1180px}
+}
+@media(max-width:1100px){
+  .filter-form{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .filter-specs-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  .brand{font-size:21px;gap:6px}
+  .brand-symbol{width:25px;height:25px}
+  .filter-form{grid-template-columns:1fr;gap:10px}
+  .filter-specs-grid{grid-template-columns:1fr}
+  .filter-panel{padding:15px}
+  .filter-actions{justify-content:stretch}
+  .filter-actions button{flex:1}
+  .search-result{grid-template-columns:minmax(0,1fr);gap:10px}
+  .search-result-actions{flex-direction:row;justify-content:space-between;align-items:center}
+  .search-result-actions .tag{align-self:center}
+  .search-result-actions .compare-check{align-self:center}
+}
