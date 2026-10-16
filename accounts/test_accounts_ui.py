@@ -86,6 +86,10 @@ class AccountFlowTests(TestCase):
         public = self.client.get(reverse("public_profile", args=["author"]), secure=True)
         self.assertContains(public, "Мастер")
         self.assertNotContains(public, "author@example.test")
+        self.assertContains(public, "DIY-проекты автора")
+        self.assertNotIn(b"<section", public.content.split(b"</title>", 1)[0])
+        dashboard = self.client.get(reverse("account_dashboard"), secure=True)
+        self.assertContains(dashboard, "profile-panel")
 
     def test_login_logout_post_and_private_dashboard(self):
         user = get_user_model().objects.create_user(

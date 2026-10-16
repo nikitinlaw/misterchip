@@ -2,7 +2,7 @@
 {% block title %}Личный кабинет — MISTERCHIP{% endblock %}
 {% block content %}
 <div class="page-heading"><span class="eyebrow">Моя учётная запись</span><h1>Личный кабинет</h1></div>
-<section class="panel">
+<section class="panel profile-panel">
   <p><strong>{{ request.user.username }}</strong> · {{ request.user.email }}</p>
   <p>Текущие роли:
     {% for entry in roles %}<span class="tag">{{ entry.get_role_display }}</span>{% empty %}не назначены{% endfor %}

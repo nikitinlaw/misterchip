@@ -54,7 +54,10 @@ class FlexibleCharacteristicsTests(TestCase):
         self.assertEqual(self.ram_product.attribute_values.count(), 1)
 
     def test_public_card(self):
-        self.assertContains(self.client.get(reverse("product_detail", args=["ram-test"]), secure=True), "Модуль памяти")
+        response = self.client.get(reverse("product_detail", args=["ram-test"]), secure=True)
+        self.assertContains(response, "Модуль памяти")
+        self.assertContains(response, "DIY-проекты с этой моделью")
+        self.assertNotIn(b"<section", response.content.split(b"</title>", 1)[0])
         self.ram_product.status = Product.Status.DRAFT
         self.ram_product.save()
         self.assertEqual(self.client.get(reverse("product_detail", args=["ram-test"]), secure=True).status_code, 404)
