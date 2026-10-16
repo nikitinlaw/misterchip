@@ -156,6 +156,10 @@ def search(request):
         "brands": Brand.objects.all(),
         "selected_category": category_slug, "selected_brand": brand_slug, "selected_type": product_type,
         "filters": filters, "errors": errors,
+        "expand_specs": any(
+            spec.get("min_value") or spec.get("max_value") or spec.get("value")
+            for spec in filters
+        ),
         "pagination_query": page_query.urlencode(),
     })
 

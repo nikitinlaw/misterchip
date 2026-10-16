@@ -42,39 +42,48 @@
         </select>
       </div>
       {% if selected_type %}
-      <fieldset class="filter-specs">
-        <legend>Параметры: {{ selected_type.name }}</legend>
+      <details class="filter-specs"{% if expand_specs %} open{% endif %}>
+        <summary>Технические параметры <span class="filter-spec-type">· {{ selected_type.name }}</span></summary>
         <div class="filter-specs-grid">
           {% for filter in filters %}
           {% if filter.kind == "range" %}
-          <div class="filter-field">
-            <p class="filter-name">{{ filter.label }} {% if filter.unit %}({{ filter.unit }}){% endif %}</p>
-            <div class="filter-pair">
-              <label>От <input type="number" step="any" name="{{ filter.min_key }}" value="{{ filter.min_value }}"></label>
-              <label>До <input type="number" step="any" name="{{ filter.max_key }}" value="{{ filter.max_value }}"></label>
+            <div class="filter-field filter-spec-field">
+              <p class="filter-spec-title">{{ filter.label }} {% if filter.unit %}({{ filter.unit }}){% endif %}</p>
+              <div class="filter-pair">
+                <input type="number" step="any" name="{{ filter.min_key }}" value="{{ filter.min_value }}"
+                       placeholder="От" aria-label="От — {{ filter.label }}">
+                <input type="number" step="any" name="{{ filter.max_key }}" value="{{ filter.max_value }}"
+                       placeholder="До" aria-label="До — {{ filter.label }}">
+              </div>
             </div>
-          </div>
           {% elif filter.kind == "choice" %}
-          <label class="filter-field">{{ filter.label }}
-            <select name="{{ filter.name }}">
-              <option value="">Любое</option>
-              {% for option in filter.choices %}<option value="{{ option }}"{% if filter.value == option %} selected{% endif %}>{{ option }}</option>{% endfor %}
-            </select>
-          </label>
+            <div class="filter-field filter-spec-field">
+              <label class="filter-spec-title" for="spec-{{ forloop.counter }}">{{ filter.label }}</label>
+              <select id="spec-{{ forloop.counter }}" name="{{ filter.name }}">
+                <option value="">Любое</option>
+                {% for option in filter.choices %}
+                <option value="{{ option }}"{% if filter.value == option %} selected{% endif %}>{{ option }}</option>
+                {% endfor %}
+              </select>
+            </div>
           {% elif filter.kind == "boolean" %}
-          <label class="filter-field">{{ filter.label }}
-            <select name="{{ filter.name }}">
-              <option value="">Любое</option>
-              <option value="true"{% if filter.value == "true" %} selected{% endif %}>Да</option>
-              <option value="false"{% if filter.value == "false" %} selected{% endif %}>Нет</option>
-            </select>
-          </label>
+            <div class="filter-field filter-spec-field">
+              <label class="filter-spec-title" for="spec-{{ forloop.counter }}">{{ filter.label }}</label>
+              <select id="spec-{{ forloop.counter }}" name="{{ filter.name }}">
+                <option value="">Любое</option>
+                <option value="true"{% if filter.value == "true" %} selected{% endif %}>Да</option>
+                <option value="false"{% if filter.value == "false" %} selected{% endif %}>Нет</option>
+              </select>
+            </div>
           {% else %}
-          <label class="filter-field">{{ filter.label }}<input name="{{ filter.name }}" value="{{ filter.value }}"></label>
+            <div class="filter-field filter-spec-field">
+              <label class="filter-spec-title" for="spec-{{ forloop.counter }}">{{ filter.label }}</label>
+              <input id="spec-{{ forloop.counter }}" name="{{ filter.name }}" value="{{ filter.value }}">
+            </div>
           {% endif %}
           {% endfor %}
         </div>
-      </fieldset>
+      </details>
       {% endif %}
       <div class="filter-actions">
         <button type="submit">Применить фильтры</button>

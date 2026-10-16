@@ -435,3 +435,137 @@ button,input,select,textarea{font-family:inherit}
 .brand-logo{display:block;width:200px;height:auto;max-width:100%}
 @media(max-width:700px){.brand-logo{width:176px}}
 @media(max-width:380px){.brand-logo{width:162px}}
+
+/* MISTERCHIP UI v3 — lighter SF-style typography and consistent filter rhythm. */
+:root{
+  --ui-font:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+}
+body{
+  font-family:var(--ui-font);
+  font-size:15.5px;
+  font-weight:400;
+  letter-spacing:0;
+}
+h1,h2,h3{
+  font-weight:600;
+  letter-spacing:-.022em;
+}
+h1{font-size:clamp(28px,2.7vw,37px);line-height:1.17}
+h2{font-size:clamp(20px,2vw,25px)}
+h3{font-size:17px}
+.page-heading h1{margin:6px 0 11px}
+.page-heading .subtle{font-size:14px;line-height:1.5}
+.eyebrow{font-weight:600;letter-spacing:.085em}
+.nav,.nav a{font-weight:500}
+.brand{font-weight:600}
+label,form label{font-weight:500}
+button,.secondary-action{font-weight:500}
+.category-tile{font-weight:500}
+.tag{font-weight:500}
+.product-mark{font-weight:600}
+.spec-table td{font-weight:500}
+.source-title{font-weight:600}
+.filter-panel h2{font-weight:600}
+.filter-panel .filter-field label,
+.filter-panel .filter-name{font-weight:500}
+.filter-panel .filter-spec-title{font-weight:500}
+.filter-panel input,.filter-panel select{font-weight:400}
+.search-result-info h3,.product-card h3{font-weight:600}
+.filter-panel{min-width:0}
+.filter-form{align-items:start}
+.filter-panel .filter-form>.filter-field{align-self:stretch}
+.filter-form>.filter-field>label{
+  display:block;
+  min-height:20px;
+  margin:0 0 6px;
+  line-height:20px;
+  font-size:13px;
+  font-weight:500;
+}
+.filter-form>.filter-field>input,
+.filter-form>.filter-field>select{
+  height:42px;
+  padding:8px 11px;
+  margin:0;
+  width:100%;
+  font-size:14px;
+  font-weight:400;
+}
+.filter-form select{white-space:nowrap;text-overflow:ellipsis}
+.filter-panel h2{margin:0 0 12px}
+.filter-actions{align-self:end;gap:12px;margin:0}
+.filter-actions button{min-height:40px;padding:8px 13px;font-size:14px}
+.filter-actions .clear-filter{font-size:13px}
+.filter-specs{
+  grid-column:1/-1;
+  width:100%;
+  border:0;
+  border-top:1px solid var(--line);
+  margin:0;
+  padding:0;
+  min-width:0;
+}
+.filter-specs>summary{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  cursor:pointer;
+  list-style:none;
+  padding:9px 0;
+  font-size:14px;
+  font-weight:500;
+  line-height:1.5;
+  color:var(--ink);
+}
+.filter-specs>summary::-webkit-details-marker{display:none}
+.filter-specs>summary::before{
+  content:"▸";
+  display:inline-block;
+  color:var(--link);
+  margin-right:5px;
+}
+.filter-specs[open]>summary::before{content:"▾"}
+.filter-specs>summary:focus-visible{outline:3px solid #86baff;outline-offset:2px}
+.filter-spec-type{color:var(--subtle);font-weight:400}
+.filter-specs-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:start;
+  gap:13px 16px;
+  padding:8px 0 4px;
+}
+.filter-spec-field{min-width:0;display:flex;flex-direction:column}
+.filter-spec-field>.filter-spec-title{
+  display:block;
+  min-height:37px;
+  margin:0 0 6px;
+  line-height:1.35;
+  font-size:13px;
+  font-weight:500;
+}
+.filter-spec-field>.filter-pair{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+}
+.filter-spec-field input,.filter-spec-field select{
+  display:block;
+  width:100%;
+  height:42px;
+  min-height:42px;
+  padding:8px 11px;
+  margin:0;
+  font-size:14px;
+  font-weight:400;
+}
+.filter-spec-field input::placeholder{color:#778395;opacity:1}
+@media(max-width:1100px){
+  .filter-specs-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  body{font-size:16px}
+  .filter-specs-grid{grid-template-columns:1fr}
+  .filter-specs>summary{flex-wrap:wrap}
+  .filter-spec-field>.filter-spec-title{min-height:0}
+  .filter-spec-field input,.filter-spec-field select{min-height:44px}
+}

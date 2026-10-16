@@ -56,6 +56,33 @@ class PublicCatalogTests(TestCase):
         self.assertContains(response, 'name="ids"', count=3)
         self.assertContains(response, 'Применить фильтры')
 
+    def test_optional_technical_filters_are_compact_until_applied(self):
+        url = reverse("catalog_search")
+        unfiltered = self.client.get(url, {"type": self.resistor.pk}, secure=True)
+        self.assertContains(unfiltered, '<details class="filter-specs">')
+        self.assertContains(unfiltered, "Технические параметры")
+        self.assertContains(unfiltered, f'name="a_{self.resistance.pk}_min"')
+        self.assertContains(unfiltered, f'name="a_{self.resistance.pk}_max"')
+        filtered = self.client.get(
+            url,
+            {"type": self.resistor.pk, f"a_{self.resistance.pk}_min": "900"},
+            secure=True,
+        )
+        self.assertContains(filtered, '<details class="filter-specs" open>')
+        self.assertContains(filtered, 'value="900"')
+        self.assertContains(filtered, "Резистор 1")
+        self.assertNotContains(filtered, "Память DDR5")
+
+    def test_choice_filter_is_visible_when_selected(self):
+        response = self.client.get(
+            reverse("catalog_search"),
+            {"type": self.ram.pk, f"a_{self.ddr.pk}": "DDR5"},
+            secure=True,
+        )
+        self.assertContains(response, '<details class="filter-specs" open>')
+        self.assertContains(response, 'value="DDR5" selected')
+        self.assertContains(response, "Память DDR5")
+
     def test_search_numeric_range_in_canonical_units(self):
         response = self.client.get(reverse("catalog_search"), {
             "type": str(self.resistor.pk),
