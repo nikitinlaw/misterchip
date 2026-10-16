@@ -7,13 +7,14 @@
   <meta name="description" content="{% block description %}Справочный каталог электроники MISTERCHIP: технические характеристики и сравнения моделей.{% endblock %}">
   <title>{% block title %}MISTERCHIP — каталог электроники{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'catalog/site.css' %}">
+  <link rel="icon" type="image/png" sizes="128x128" href="{% static 'catalog/favicon.png' %}">
 </head>
 <body>
 <a class="skip-link" href="#main">К основному содержимому</a>
 <header class="header">
   <div class="container header-inner">
     <a class="brand" href="{% url 'home' %}" aria-label="misterchip — главная">
-      <span class="brand-wordmark" aria-hidden="true"><span class="brand-mister">mister</span><span class="brand-chip">chip</span></span><span class="brand-symbol" aria-hidden="true">▦</span>
+      <img class="brand-logo" src="{% static 'catalog/misterchip-logo.png' %}" alt="misterchip" width="200" height="39">
     </a>
     <nav class="nav" aria-label="Основная навигация">
       <a href="{% url 'home' %}">Главная</a>
