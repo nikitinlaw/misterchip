@@ -197,3 +197,6 @@ input[type=checkbox] {accent-color:#2868b1;}
   .mc-spec-grid {grid-template-columns:1fr;}
   #configured_attributes-group .tabular table {min-width:800px;}
 }
+
+/* Theme is deliberately fixed to light for the MISTERCHIP admin. */
+.theme-toggle{display:none!important}

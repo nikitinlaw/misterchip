@@ -62,6 +62,39 @@ class SpecificationAdminTests(TestCase):
         self.assertContains(response, "Обязательная")
         self.assertContains(response, "Название типа")
 
+    def test_compact_type_editor_preserves_inline_settings(self):
+        binding = ProductTypeAttribute.objects.get(
+            product_type=self.resistor, attribute=self.resistance,
+        )
+        response = self.client.post(
+            reverse("admin:catalog_producttype_change", args=[self.resistor.pk]),
+            {
+                "category": str(self.resistor.category_id),
+                "name": self.resistor.name,
+                "slug": self.resistor.slug,
+                "active": "on",
+                "configured_attributes-TOTAL_FORMS": "1",
+                "configured_attributes-INITIAL_FORMS": "1",
+                "configured_attributes-MIN_NUM_FORMS": "0",
+                "configured_attributes-MAX_NUM_FORMS": "1000",
+                "configured_attributes-0-id": str(binding.pk),
+                "configured_attributes-0-product_type": str(self.resistor.pk),
+                "configured_attributes-0-attribute": str(self.resistance.pk),
+                "configured_attributes-0-required": "on",
+                "configured_attributes-0-filterable": "on",
+                "configured_attributes-0-comparable": "on",
+                "configured_attributes-0-visible": "on",
+                "configured_attributes-0-sort_order": "8",
+                "_save": "Сохранить",
+            },
+            secure=True,
+        )
+        self.assertEqual(response.status_code, 302)
+        binding.refresh_from_db()
+        self.assertEqual(binding.sort_order, 8)
+        self.assertTrue(binding.required)
+        self.assertTrue(binding.filterable)
+
     def test_spec_editor_has_one_title_and_combined_units(self):
         response = self.client.get(self.spec_url(self.part), secure=True)
         self.assertEqual(response.status_code, 200)
