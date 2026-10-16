@@ -1,0 +1,84 @@
+name: Deploy private staging
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: misterchip-private-staging
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: misterchip
+          POSTGRES_USER: misterchip
+          POSTGRES_PASSWORD: integration-tests
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U misterchip -d misterchip"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DJANGO_DEBUG: "0"
+      DJANGO_SECRET_KEY: "tests-not-production-secret-please-ignore"
+      DJANGO_EMAIL_BACKEND: django.core.mail.backends.locmem.EmailBackend
+      DB_NAME: misterchip
+      DB_USER: misterchip
+      DB_PASSWORD: integration-tests
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      REDIS_URL: redis://127.0.0.1:6379/1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements.txt
+      - run: python manage.py makemigrations --check --dry-run
+      - run: python manage.py migrate --noinput
+      - run: python manage.py check
+      - run: python manage.py test
+
+  deploy:
+    needs: tests
+    runs-on: ubuntu-latest
+    environment: staging
+    timeout-minutes: 20
+    steps:
+      - name: Check that deployment key exists
+        env:
+          DEPLOY_KEY: ${{ secrets.MISTERCHIP_DEPLOY_SSH_KEY }}
+        run: |
+          if [[ -z "$DEPLOY_KEY" ]]; then
+            echo "::error::Set MISTERCHIP_DEPLOY_SSH_KEY in GitHub Actions secrets before deploying."
+            exit 1
+          fi
+      - name: Configure a pinned SSH connection
+        env:
+          DEPLOY_KEY: ${{ secrets.MISTERCHIP_DEPLOY_SSH_KEY }}
+        run: |
+          umask 077
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_misterchip_staging
+          chmod 600 ~/.ssh/id_misterchip_staging
+          ssh-keyscan -T 10 -t ed25519 93.188.187.188 > ~/.ssh/known_hosts
+          # Independently validated host-key fingerprint from first Beget login.
+          ssh-keygen -lf ~/.ssh/known_hosts -E sha256 | grep -Fq 'SHA256:K6Xw//ORC3vck3ccPgoQJW3JS8kyROJz1lH6LVuiA7k'
+      - name: Deploy the exact commit tested in this workflow
+        env:
+          COMMIT: ${{ github.sha }}
+        run: |
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes \
+            -o ConnectTimeout=15 -i ~/.ssh/id_misterchip_staging \
+            misterchip-admin@93.188.187.188 "deploy:$COMMIT"
