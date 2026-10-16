@@ -42,5 +42,11 @@ jobs:
       - run: python manage.py makemigrations --check --dry-run
       - run: python manage.py migrate --noinput
       - run: python manage.py check
+      - name: Validate deploy scripts and private Compose
+        run: |
+          bash -n ops/bootstrap-staging.sh ops/deploy-gateway.sh ops/deploy-host.sh
+          cp .env.example .env
+          docker compose -f compose.staging.yaml config -q
+          rm .env
       - run: python manage.py collectstatic --noinput
       - run: python manage.py test
