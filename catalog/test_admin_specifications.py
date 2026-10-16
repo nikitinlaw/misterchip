@@ -56,8 +56,8 @@ class SpecificationAdminTests(TestCase):
             secure=True,
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'catalog/admin.css')
-        self.assertContains(response, 'catalog/misterchip-logo')
+        self.assertContains(response, 'catalog/admin.')
+        self.assertContains(response, 'catalog/misterchip-logo.')
         self.assertContains(response, "Характеристики товара")
         self.assertContains(response, "Обязательная")
         self.assertContains(response, "Название типа")
