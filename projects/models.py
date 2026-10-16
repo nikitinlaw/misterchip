@@ -39,6 +39,8 @@ class Project(models.Model):
     )
 
     class Meta:
+        verbose_name = "DIY-проект"
+        verbose_name_plural = "DIY-проекты"
         ordering = ["-published_at", "-created_at"]
         indexes = [models.Index(fields=["status", "-published_at"], name="project_public_idx")]
 
@@ -68,6 +70,8 @@ class ProjectComponent(models.Model):
     sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:
+        verbose_name = "Компонент проекта"
+        verbose_name_plural = "Компоненты проектов"
         ordering = ["sort_order", "pk"]
         constraints = [
             models.CheckConstraint(condition=models.Q(quantity__gt=0), name="project_component_positive_qty"),
@@ -98,6 +102,8 @@ class ProjectResource(models.Model):
     )
 
     class Meta:
+        verbose_name = "Технический ресурс"
+        verbose_name_plural = "Технические ресурсы"
         ordering = ["kind", "pk"]
         constraints = [
             models.UniqueConstraint(fields=["project", "url"], name="uniq_project_resource_url"),

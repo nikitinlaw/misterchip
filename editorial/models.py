@@ -44,6 +44,8 @@ class Article(models.Model):
     )
 
     class Meta:
+        verbose_name = "Публикация"
+        verbose_name_plural = "Публикации"
         ordering = ["-published_at", "-created_at"]
         indexes = [models.Index(fields=["status", "-published_at"], name="article_public_idx")]
 
