@@ -1,12 +1,59 @@
 {% extends "catalog/base.html" %}
 {% block title %}Регистрация — MISTERCHIP{% endblock %}
 {% block content %}
-<section class="panel auth-panel">
-  <span class="eyebrow">Сообщество MISTERCHIP</span><h1>Создать аккаунт</h1>
-  <p>После регистрации отправим письмо для подтверждения адреса. Пока адрес не подтверждён, вход будет недоступен.</p>
-  <p>У вас может быть несколько направлений деятельности. Статусы продавца и представителя производителя предоставляются после проверки.</p>
-  <form method="post">{% csrf_token %}{{ form.as_p }}
-  <button type="submit">Зарегистрироваться</button></form>
-  <p>Уже зарегистрированы? <a href="{% url 'login' %}">Войти</a></p>
+<section class="panel auth-panel registration-panel">
+  <span class="eyebrow">Сообщество MISTERCHIP</span>
+  <h1>Создать аккаунт</h1>
+  <p class="registration-intro">Укажите данные — после регистрации подтвердите адрес электронной почты.</p>
+
+  <form method="post" class="registration-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="registration-form-errors" role="alert">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="registration-fields">
+      <div class="registration-field">
+        {{ form.username.label_tag }}
+        {{ form.username }}
+        {{ form.username.errors }}
+      </div>
+      <div class="registration-field">
+        {{ form.email.label_tag }}
+        {{ form.email }}
+        {{ form.email.errors }}
+      </div>
+      <div class="registration-field">
+        {{ form.password1.label_tag }}
+        {{ form.password1 }}
+        {{ form.password1.errors }}
+      </div>
+      <div class="registration-field">
+        {{ form.password2.label_tag }}
+        {{ form.password2 }}
+        {{ form.password2.errors }}
+      </div>
+    </div>
+
+    <details class="registration-password-details">
+      <summary>Требования к паролю</summary>
+      {{ form.password1.help_text|safe }}
+      {% if form.username.help_text %}
+        <p>{{ form.username.help_text }}</p>
+      {% endif %}
+    </details>
+
+    <fieldset class="registration-roles">
+      <legend>{{ form.roles.label }} <span class="subtle">(необязательно)</span></legend>
+      {{ form.roles }}
+      {{ form.roles.errors }}
+      <p class="subtle">Продавцов и представителей производителей проверяет администрация.</p>
+    </fieldset>
+
+    <div class="registration-actions">
+      <button type="submit">Зарегистрироваться</button>
+      <p>Есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+    </div>
+  </form>
 </section>
 {% endblock %}

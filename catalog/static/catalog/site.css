@@ -97,3 +97,120 @@ textarea{width:100%;max-width:100%;padding:10px 12px;border:1px solid #bdc8d5;bo
 .formset-row h3{font-size:16px}
 .formset-row input,.formset-row select{max-width:100%}
 .project-editor input[type=checkbox]{width:auto}
+
+/* Compact registration: four essential fields visible without excessive scrolling
+   on common 13-inch notebook viewports. Keep 44px touch targets on mobile. */
+.registration-panel{
+  max-width:610px;
+  margin:0 auto;
+  padding:24px 28px;
+}
+.registration-panel h1{
+  font-size:clamp(27px,3vw,32px);
+  margin:5px 0 8px;
+}
+.registration-intro{
+  color:var(--subtle);
+  font-size:14px;
+  line-height:1.45;
+  margin:0 0 19px;
+}
+.registration-panel form{max-width:none}
+.registration-fields{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  column-gap:16px;
+  row-gap:12px;
+}
+.registration-field{min-width:0}
+.registration-field label{
+  font-size:14px;
+  line-height:1.4;
+  margin-bottom:5px;
+}
+.registration-field input{
+  display:block;
+  width:100%;
+  min-height:43px;
+  padding:9px 11px;
+  margin:0;
+}
+.registration-field .errorlist{
+  color:#9a3030;
+  font-size:13px;
+  line-height:1.4;
+  margin:5px 0 0;
+}
+.registration-password-details{
+  font-size:13px;
+  color:var(--subtle);
+  margin:12px 0 14px;
+}
+.registration-password-details summary{
+  cursor:pointer;
+  color:var(--link);
+  width:max-content;
+  max-width:100%;
+}
+.registration-password-details ul{
+  margin:6px 0 8px;
+  padding-left:19px;
+  list-style:disc;
+}
+.registration-password-details ul li{margin:3px 0}
+.registration-roles{
+  padding:12px 0 0;
+  margin:0 0 16px;
+  border:0;
+  border-top:1px solid var(--line);
+}
+.registration-roles legend{
+  padding:0 8px 0 0;
+  font-size:14px;
+  font-weight:650;
+}
+.registration-roles #id_roles{
+  display:flex;
+  flex-wrap:wrap;
+  column-gap:18px;
+  row-gap:7px;
+  margin:2px 0 7px;
+}
+.registration-roles #id_roles>div{margin:0}
+.registration-roles #id_roles label{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:400;
+  white-space:nowrap;
+}
+.registration-roles input[type="checkbox"]{margin:0}
+.registration-roles .subtle{font-size:12px;line-height:1.45;margin:0}
+.registration-actions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.registration-actions button{padding:10px 15px;min-height:43px}
+.registration-actions p{font-size:13px;margin:0}
+.registration-form-errors{
+  font-size:14px;
+  border-left:3px solid #ad3434;
+  background:#fff5f5;
+  padding:8px 12px;
+  margin:0 0 12px;
+}
+@media(max-width:620px){
+  .registration-panel{max-width:500px;padding:20px}
+  .registration-fields{grid-template-columns:1fr;row-gap:12px}
+  .registration-intro{margin-bottom:16px}
+}
+@media(max-width:380px){
+  .registration-panel{padding:16px}
+  .registration-roles #id_roles{display:grid;row-gap:8px}
+  .registration-actions button{width:100%}
+}

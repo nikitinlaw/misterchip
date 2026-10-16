@@ -6,6 +6,28 @@ from .models import Profile, UserRole
 
 
 class AccountFlowTests(TestCase):
+    def test_registration_page_has_compact_complete_form(self):
+        response = self.client.get(reverse("account_register"), secure=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "registration-fields")
+        self.assertContains(response, "registration-roles")
+        self.assertContains(response, "registration-password-details")
+        for name in ("username", "email", "password1", "password2"):
+            self.assertContains(response, f'name="{name}"')
+        self.assertContains(response, 'name="roles"', count=3)
+        self.assertContains(response, "Зарегистрироваться")
+
+    def test_registration_validation_errors_are_visible(self):
+        response = self.client.post(reverse("account_register"), {
+            "username": "testmaker", "email": "not-an-email",
+            "password1": "weak", "password2": "different",
+        }, secure=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="errorlist"')
+        self.assertContains(response, 'name="email"')
+        self.assertContains(response, 'name="password1"')
+
+
     def test_register_and_login_with_two_roles(self):
         response = self.client.post(reverse("account_register"), {
             "username": "maker", "email": "Maker@Example.Test",
