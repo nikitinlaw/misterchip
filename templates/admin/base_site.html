@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | MISTERCHIP{% endblock %}
+
+{% block dark-mode-vars %}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'catalog/admin.css' %}">
+{% endblock %}
+
+{% block branding %}
+  <h1 id="site-name">
+    <a href="{% url 'admin:index' %}" aria-label="Главная страница управления MISTERCHIP">
+      <img src="{% static 'catalog/misterchip-logo.png' %}" alt="misterchip" width="166" height="32">
+      <span>Управление</span>
+    </a>
+  </h1>
+{% endblock %}
