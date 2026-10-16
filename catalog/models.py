@@ -10,6 +10,8 @@ class Category(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
+        verbose_name = "Раздел каталога"
+        verbose_name_plural = "Разделы каталога"
         ordering = ["order", "name"]
 
     def __str__(self):
@@ -24,6 +26,8 @@ class TrademarkGood(models.Model):
     nice_class = models.PositiveSmallIntegerField(default=9)
 
     class Meta:
+        verbose_name = "Товар из свидетельства"
+        verbose_name_plural = "Товары из свидетельства"
         ordering = ["source_position"]
 
     def __str__(self):
@@ -33,6 +37,10 @@ class TrademarkGood(models.Model):
 class Brand(models.Model):
     name = models.CharField(max_length=160, unique=True)
     slug = models.SlugField(max_length=160, unique=True)
+
+    class Meta:
+        verbose_name = "Производитель"
+        verbose_name_plural = "Производители"
 
     def __str__(self):
         return self.name
@@ -46,6 +54,8 @@ class ProductType(models.Model):
     active = models.BooleanField(default=True)
 
     class Meta:
+        verbose_name = "Тип товара"
+        verbose_name_plural = "Типы товаров"
         constraints = [models.UniqueConstraint(fields=["category", "slug"], name="uniq_product_type_slug")]
 
     def __str__(self):
@@ -70,6 +80,10 @@ class AttributeDefinition(models.Model):
         if self.data_type == self.DataType.CHOICE and not self.allowed_values:
             raise ValidationError({"allowed_values": "Укажите варианты выбора."})
 
+    class Meta:
+        verbose_name = "Характеристика"
+        verbose_name_plural = "Характеристики"
+
     def __str__(self):
         return self.name
 
@@ -84,6 +98,8 @@ class ProductTypeAttribute(models.Model):
     sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:
+        verbose_name = "Характеристика типа товара"
+        verbose_name_plural = "Характеристики типа товара"
         ordering = ["sort_order", "id"]
         constraints = [
             models.UniqueConstraint(fields=["product_type", "attribute"], name="uniq_type_attribute")
@@ -110,6 +126,10 @@ class Product(models.Model):
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.DRAFT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Модель товара"
+        verbose_name_plural = "Модели товаров"
 
     def __str__(self):
         return self.title
@@ -153,6 +173,8 @@ class ProductAttributeValue(models.Model):
     normalized_number = models.DecimalField(max_digits=25, decimal_places=8, blank=True, null=True)
 
     class Meta:
+        verbose_name = "Значение характеристики"
+        verbose_name_plural = "Значения характеристик"
         constraints = [
             models.UniqueConstraint(fields=["product", "attribute"], name="uniq_product_attribute_value")
         ]
@@ -208,6 +230,8 @@ class ProductReference(models.Model):
     verified_on = models.DateField(blank=True, null=True)
 
     class Meta:
+        verbose_name = "Источник документации"
+        verbose_name_plural = "Источники документации"
         ordering = ["kind", "title"]
         constraints = [
             models.UniqueConstraint(fields=["product", "url"], name="uniq_product_reference_url"),
