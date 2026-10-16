@@ -30,6 +30,7 @@ INSTALLED_APPS = [
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -73,6 +74,7 @@ USE_I18N = True
 USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {"staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"}}
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -97,14 +99,26 @@ CACHES = {
         "LOCATION": os.getenv("REDIS_URL", "redis://localhost:6379/1"),
     }
 }
+# For a *localhost-only SSH tunnel* during the private testing phase.
+# Never enable this mode for a publicly reachable HTTP service.
+STAGING_SSH_TUNNEL = os.getenv("DJANGO_STAGING_SSH_TUNNEL", "0") == "1"
+if STAGING_SSH_TUNNEL:
+    if DEBUG or set(ALLOWED_HOSTS) - {"localhost", "127.0.0.1", "[::1]"}:
+        raise RuntimeError("SSH-tunnel staging requires DEBUG=0 and loopback-only hosts.")
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 if not DEBUG:
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = not STAGING_SSH_TUNNEL
+    CSRF_COOKIE_SECURE = not STAGING_SSH_TUNNEL
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_SSL_REDIRECT = os.getenv("DJANGO_SECURE_SSL_REDIRECT", "1") == "1"
-    SECURE_HSTS_SECONDS = int(os.getenv("DJANGO_HSTS_SECONDS", "0"))
+    SECURE_SSL_REDIRECT = (
+        False if STAGING_SSH_TUNNEL else os.getenv("DJANGO_SECURE_SSL_REDIRECT", "1") == "1"
+    )
+    SECURE_HSTS_SECONDS = 0 if STAGING_SSH_TUNNEL else int(os.getenv("DJANGO_HSTS_SECONDS", "0"))
+
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "account_dashboard"
+
+# Django's file-based backend is supported for local-only staging verification emails.
+EMAIL_FILE_PATH = os.getenv("EMAIL_FILE_PATH", str(BASE_DIR / "private_mail"))
