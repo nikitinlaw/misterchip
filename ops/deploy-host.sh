@@ -27,15 +27,15 @@ if grep -Eq '(local-development-only|replace-this-with-a-random-secret)' "$env_f
 fi
 
 cd "$repository"
-[[ "$(git branch --show-current)" == main ]] || { echo "Expected main branch." >&2; exit 2; }
-if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
+[[ "$(runuser -u "$owner" -- git -C "$repository" branch --show-current)" == main ]] || { echo "Expected main branch." >&2; exit 2; }
+if [[ -n "$(runuser -u "$owner" -- git -C "$repository" status --porcelain --untracked-files=no)" ]]; then
   echo "Local tracked changes exist; refusing to overwrite." >&2
   exit 2
 fi
 runuser -u "$owner" -- env \
   GIT_SSH_COMMAND="ssh -i /home/$owner/.ssh/misterchip_github -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
   git -C "$repository" fetch --no-tags origin main
-actual="$(git rev-parse refs/remotes/origin/main)"
+actual="$(runuser -u "$owner" -- git -C "$repository" rev-parse refs/remotes/origin/main)"
 [[ "$actual" == "$expected" ]] || {
   echo "Deploy request is stale or does not match origin/main." >&2
   exit 2
