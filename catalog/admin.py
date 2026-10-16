@@ -9,6 +9,12 @@ from django.utils.html import format_html
 from .admin_forms import (
     SpecificationsForm, ProductTypeSettingsForm, TypeAttributeInlineForm,
 )
+from .models import (
+    AttributeDefinition, Brand, Category, Product,
+    ProductType, ProductTypeAttribute, ProductReference, TrademarkGood,
+)
+
+
 admin.site.site_header = "MISTERCHIP — управление"
 admin.site.site_title = "Управление MISTERCHIP"
 admin.site.index_title = "Панель управления"
@@ -23,12 +29,6 @@ class RussianFieldsMixin:
         if db_field.name in self.field_labels:
             kwargs.setdefault("label", self.field_labels[db_field.name])
         return super().formfield_for_dbfield(db_field, request, **kwargs)
-
-
-from .models import (
-    AttributeDefinition, Brand, Category, Product,
-    ProductType, ProductTypeAttribute, ProductReference, TrademarkGood,
-)
 
 
 @admin.register(Category)

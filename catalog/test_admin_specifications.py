@@ -67,7 +67,7 @@ class SpecificationAdminTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="mc-spec-grid"')
         self.assertContains(response, "Единица измерения: Сопротивление")
-        self.assertNotContains(response, "<h1>Характеристики:", count=0)
+        self.assertEqual(response.content.count(b"<h1>"), 1)
 
     def test_decimal_initial_display_omits_unnecessary_zeros(self):
         ProductAttributeValue.objects.create(
