@@ -4,9 +4,35 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from .models import (
-    AttributeDefinition, ProductAttributeValue, ProductTypeAttribute,
+    AttributeDefinition, ProductAttributeValue, ProductTypeAttribute, ProductType,
     UNIT_CONVERSIONS, normalize_number,
 )
+
+
+class ProductTypeSettingsForm(forms.ModelForm):
+    class Meta:
+        model = ProductType
+        fields = ("category", "name", "slug", "active")
+        labels = {
+            "category": "Раздел",
+            "name": "Название типа",
+            "slug": "Адрес (slug)",
+            "active": "Доступен в каталоге",
+        }
+
+
+class TypeAttributeInlineForm(forms.ModelForm):
+    class Meta:
+        model = ProductTypeAttribute
+        fields = ("attribute", "required", "filterable", "comparable", "visible", "sort_order")
+        labels = {
+            "attribute": "Характеристика",
+            "required": "Обязательная",
+            "filterable": "Фильтр",
+            "comparable": "Сравнение",
+            "visible": "Показывать",
+            "sort_order": "Порядок",
+        }
 
 
 class SpecificationsForm(forms.Form):
@@ -35,7 +61,7 @@ class SpecificationsForm(forms.Form):
                 )
                 current = existing.get(definition.pk)
                 if current:
-                    self.initial[key] = current.number_value
+                    self.initial[key] = format(current.number_value.normalize(), "f") if current.number_value is not None else None
                 self.fields[key] = field
                 choices = self.allowed_units(definition.canonical_unit)
                 unit_key = self.unit_key(binding)
@@ -72,6 +98,17 @@ class SpecificationsForm(forms.Form):
                 self.fields[key] = forms.CharField(label=label, required=binding.required)
                 if definition.pk in existing:
                     self.initial[key] = existing[definition.pk].text_value
+
+        # Bound fields for a dense, two-column admin editor. Pure presentation.
+        self.rows = []
+        for binding in self.bindings:
+            value = self[self.value_key(binding)]
+            unit = (
+                self[self.unit_key(binding)]
+                if binding.attribute.data_type == AttributeDefinition.DataType.NUMBER
+                else None
+            )
+            self.rows.append({"label": binding.attribute.name, "value": value, "unit": unit})
 
     @staticmethod
     def value_key(binding):

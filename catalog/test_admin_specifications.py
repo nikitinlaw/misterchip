@@ -50,6 +50,35 @@ class SpecificationAdminTests(TestCase):
         self.assertContains(b, "Поколение DDR")
         self.assertNotContains(b, "Сопротивление")
 
+    def test_light_branded_admin_and_compact_types(self):
+        response = self.client.get(
+            reverse("admin:catalog_producttype_change", args=[self.resistor.pk]),
+            secure=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'catalog/admin.css')
+        self.assertContains(response, 'catalog/misterchip-logo')
+        self.assertContains(response, "Характеристики товара")
+        self.assertContains(response, "Обязательная")
+        self.assertContains(response, "Название типа")
+
+    def test_spec_editor_has_one_title_and_combined_units(self):
+        response = self.client.get(self.spec_url(self.part), secure=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="mc-spec-grid"')
+        self.assertContains(response, "Единица измерения: Сопротивление")
+        self.assertNotContains(response, "<h1>Характеристики:", count=0)
+
+    def test_decimal_initial_display_omits_unnecessary_zeros(self):
+        ProductAttributeValue.objects.create(
+            product=self.part, attribute=self.resistance,
+            number_value=Decimal("10.00000000"), unit="Ом",
+        )
+        response = self.client.get(self.spec_url(self.part), secure=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'value="10"')
+        self.assertNotContains(response, 'value="10.00000000"')
+
     def test_save_and_normalize_resistance(self):
         url = self.spec_url(self.part)
         resp = self.client.post(

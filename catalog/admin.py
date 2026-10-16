@@ -6,7 +6,25 @@ from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
 
-from .admin_forms import SpecificationsForm
+from .admin_forms import (
+    SpecificationsForm, ProductTypeSettingsForm, TypeAttributeInlineForm,
+)
+admin.site.site_header = "MISTERCHIP — управление"
+admin.site.site_title = "Управление MISTERCHIP"
+admin.site.index_title = "Панель управления"
+
+
+class RussianFieldsMixin:
+    """Use readable field labels in Admin without changing database schema."""
+
+    field_labels = {}
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name in self.field_labels:
+            kwargs.setdefault("label", self.field_labels[db_field.name])
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
+
+
 from .models import (
     AttributeDefinition, Brand, Category, Product,
     ProductType, ProductTypeAttribute, ProductReference, TrademarkGood,
@@ -14,7 +32,8 @@ from .models import (
 
 
 @admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
+class CategoryAdmin(RussianFieldsMixin, admin.ModelAdmin):
+    field_labels = {"name": "Название", "slug": "Адрес (slug)", "order": "Порядок"}
     list_display = ("name", "order")
     prepopulated_fields = {"slug": ("name",)}
 
@@ -34,25 +53,39 @@ class TrademarkGoodAdmin(admin.ModelAdmin):
 
 
 @admin.register(Brand)
-class BrandAdmin(admin.ModelAdmin):
+class BrandAdmin(RussianFieldsMixin, admin.ModelAdmin):
+    field_labels = {"name": "Название", "slug": "Адрес (slug)"}
     search_fields = ("name",)
     prepopulated_fields = {"slug": ("name",)}
 
 
 class ProductTypeAttributeInline(admin.TabularInline):
     model = ProductTypeAttribute
-    extra = 1
+    form = TypeAttributeInlineForm
+    extra = 0
+    fields = ("attribute", "required", "filterable", "comparable", "visible", "sort_order")
+    verbose_name = "Характеристика"
+    verbose_name_plural = "Характеристики товара"
+    show_change_link = False
 
 
 @admin.register(ProductType)
 class ProductTypeAdmin(admin.ModelAdmin):
+    form = ProductTypeSettingsForm
     list_display = ("name", "category", "active")
     list_filter = ("category",)
+    search_fields = ("name", "slug", "category__name")
+    fields = (("category", "name"), ("slug", "active"))
     inlines = [ProductTypeAttributeInline]
 
 
 @admin.register(AttributeDefinition)
-class AttributeDefinitionAdmin(admin.ModelAdmin):
+class AttributeDefinitionAdmin(RussianFieldsMixin, admin.ModelAdmin):
+    field_labels = {
+        "name": "Название", "code": "Код параметра",
+        "data_type": "Тип значения", "canonical_unit": "Базовая единица измерения",
+        "allowed_values": "Варианты выбора",
+    }
     list_display = ("name", "code", "data_type", "canonical_unit")
     search_fields = ("name", "code")
 
@@ -63,7 +96,12 @@ class ProductReferenceInline(admin.TabularInline):
 
 
 @admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(RussianFieldsMixin, admin.ModelAdmin):
+    field_labels = {
+        "product_type": "Тип товара", "brand": "Производитель", "title": "Название",
+        "model": "Модель", "mpn": "Артикул производителя", "slug": "Адрес (slug)",
+        "description": "Описание", "status": "Статус",
+    }
     list_display = ("title", "product_type", "brand", "status", "specifications_link")
     list_filter = ("status", "product_type")
     search_fields = ("title", "mpn", "model")
