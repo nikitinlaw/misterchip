@@ -9,6 +9,7 @@ from .models import (
     Brand, Category, Product, ProductAttributeValue, ProductType, ProductTypeAttribute,
 )
 from .utils import comparison_key, value_display
+from market.models import Offer
 
 
 def home(request):
@@ -39,6 +40,9 @@ def product_detail(request, slug):
     ]
     return render(request, "catalog/product_detail.html", {
         "product": product, "characteristics": characteristics,
+        "offers": Offer.objects.public().filter(product=product).select_related(
+            "shop", "shop__seller",
+        ).order_by("price", "pk"),
         "references": product.references.all(),
         "related_articles": product.editorial_articles.filter(
             status="published",

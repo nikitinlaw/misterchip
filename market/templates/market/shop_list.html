@@ -1,0 +1,24 @@
+{% extends "catalog/base.html" %}
+{% block title %}Магазины электроники — MISTERCHIP{% endblock %}
+{% block description %}Магазины и предложения электроники на MISTERCHIP. Сравните условия и уточните цену и наличие у продавца.{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <span class="eyebrow">MISTERCHIP Market</span><h1>Магазины электроники</h1>
+  <p class="lede">Предложения магазинов связаны с общим каталогом моделей. Перед покупкой уточните условия у продавца.</p>
+  <a class="secondary-action" href="{% url 'market_seller_dashboard' %}">Добавить свой магазин →</a>
+</section>
+<div class="product-grid">
+{% for shop in page %}
+  <article class="panel market-card">
+    <span class="eyebrow">{{ shop.city }}</span>
+    <h2><a href="{% url 'market_shop_detail' shop.slug %}">{{ shop.name }}</a></h2>
+    {% if shop.description %}<p>{{ shop.description|truncatechars:240 }}</p>{% endif %}
+    <p class="small subtle">{{ shop.seller.legal_name }}</p>
+    <a href="{% url 'market_shop_detail' shop.slug %}">Посмотреть предложения →</a>
+  </article>
+{% empty %}
+  <p class="empty-state">Магазины пока проходят подготовку. Новые предложения появятся после проверки сведений продавцов.</p>
+{% endfor %}
+</div>
+{% include "market/_pagination.html" %}
+{% endblock %}

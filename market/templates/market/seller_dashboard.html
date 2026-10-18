@@ -1,0 +1,29 @@
+{% extends "market/private_base.html" %}
+{% block title %}Кабинет продавца — MISTERCHIP{% endblock %}
+{% block market_content %}
+<section class="page-heading"><span class="eyebrow">MISTERCHIP Market</span><h1>Кабинет продавца</h1>
+  <p class="lede">Управляйте магазинами, предложениями и обращениями покупателей.</p>
+</section>
+{% if seller %}
+<section class="panel">
+  <div class="market-toolbar"><h2>{{ seller.legal_name }}</h2><span class="tag">{{ seller.get_status_display }}</span></div>
+  {% if seller.moderation_note %}<p>{{ seller.moderation_note|linebreaksbr }}</p>{% endif %}
+  <div class="market-toolbar"><a href="{% url 'market_seller_profile' %}">Сведения продавца</a><a class="secondary-action" href="{% url 'market_shop_create' %}">Добавить магазин →</a></div>
+  {% if seller.status != 'verified' %}<p class="small subtle">Для публикации магазинов сведения продавца должны пройти проверку.</p>{% endif %}
+</section>
+{% else %}
+<section class="panel"><h2>Откройте свой магазин</h2><p>Укажите сведения предпринимателя или организации. Редакция проверит их перед публикацией.</p><a class="secondary-action" href="{% url 'market_seller_profile' %}">Заполнить сведения продавца →</a></section>
+{% endif %}
+<section class="section"><h2>Ваши магазины</h2>
+<div class="product-grid">
+{% for card in cards %}
+  <article class="panel market-card">
+    <div class="market-toolbar"><span class="eyebrow">{{ card.shop.city }}</span><span class="tag">{{ card.shop.get_status_display }}</span></div>
+    <h3><a href="{% url 'market_shop_dashboard' card.shop.pk %}">{{ card.shop.name }}</a></h3>
+    <p class="small subtle">{% if card.can_offers %}Предложения{% endif %}{% if card.can_offers and card.can_inquiries %} · {% endif %}{% if card.can_inquiries %}Обращения покупателей{% endif %}</p>
+    <a href="{% url 'market_shop_dashboard' card.shop.pk %}">Открыть кабинет магазина →</a>
+  </article>
+{% empty %}<p class="empty-state">Здесь появятся ваши магазины и магазины, в которых вам предоставили доступ.</p>{% endfor %}
+</div>
+</section>
+{% endblock %}

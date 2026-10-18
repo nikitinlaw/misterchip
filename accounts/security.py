@@ -11,6 +11,8 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.crypto import salted_hmac
 
+from config.client_ip import InvalidClientAddress, client_ip
+
 log = logging.getLogger(__name__)
 
 CONFIRMATION_SALT = "misterchip.account.email-verification.v1"
@@ -61,15 +63,18 @@ def send_confirmation(request, user):
 def auth_rate_limit(scope, *, max_requests, period_seconds):
     """Shared Redis-based counters; fail closed when storage is unavailable.
 
-    This uses REMOTE_ADDR only (not spoofable X-Forwarded-For).
-    A trusted reverse proxy must expose a vetted client address.
+    Shared client identity honors forwarded addresses only under the explicit
+    single-proxy deployment contract; malformed identity never gets a bucket.
     """
     def outer(view):
         @wraps(view)
         def inner(request, *args, **kwargs):
             if request.method != "POST":
                 return view(request, *args, **kwargs)
-            peer = request.META.get("REMOTE_ADDR") or "unknown"
+            try:
+                peer = client_ip(request)
+            except InvalidClientAddress:
+                return HttpResponse("Некорректный запрос. Обновите страницу и повторите попытку.", status=400)
             digest = salted_hmac(
                 "misterchip.auth.limits", f"{scope}:{peer}",
             ).hexdigest()

@@ -1,0 +1,14 @@
+{% extends "catalog/base.html" %}
+{% block robots %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+{% block title %}Обращение принято — MISTERCHIP{% endblock %}
+{% block content %}
+<section class="panel market-form">
+  <span class="eyebrow">MISTERCHIP Market</span><h1>Обращение принято</h1>
+  <p class="market-message-body">Номер обращения: <strong>{{ public_id }}</strong></p>
+  <p>Обращение сохранено и доступно магазину.</p>
+  <div class="market-toolbar">
+    {% if own_inquiry %}<a class="secondary-action" href="{% url 'market_inquiry_detail' public_id %}">Моё обращение →</a>{% endif %}
+    <a href="{% url 'market_shop_list' %}">Вернуться к магазинам</a>
+  </div>
+</section>
+{% endblock %}

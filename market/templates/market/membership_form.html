@@ -1,0 +1,6 @@
+{% extends "market/private_base.html" %}
+{% block title %}Права сотрудника — MISTERCHIP{% endblock %}
+{% block market_content %}
+<section class="page-heading"><h1>Права сотрудника {{ member.user.username }}</h1><p class="lede">{{ shop.name }}</p></section>
+<form method="post" class="panel market-form">{% csrf_token %}{% include "market/_form_fields.html" %}<div class="market-toolbar"><button type="submit">Сохранить права</button><a href="{% url 'market_shop_members' shop.pk %}">Вернуться к сотрудникам</a></div></form>
+{% endblock %}

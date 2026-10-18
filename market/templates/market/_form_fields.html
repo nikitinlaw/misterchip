@@ -1,0 +1,15 @@
+{{ form.non_field_errors }}
+{% for field in form.hidden_fields %}{{ field }}{{ field.errors }}{% endfor %}
+<div class="market-form-grid">
+{% for field in form.visible_fields %}
+  <div class="market-field{% if field.name == 'description' or field.name == 'message' or field.name == 'reply_text' or field.name == 'consent' or field.name == 'condition_description' or field.name == 'comment' or field.name == 'product' %} market-field-wide{% endif %}">
+    {% if field.field.widget.input_type == 'checkbox' %}
+      <label class="market-consent">{{ field }}<span>{{ field.label }}</span></label>
+    {% else %}
+      {{ field.label_tag }}{{ field }}
+    {% endif %}
+    {{ field.errors }}
+    {% if field.help_text %}<p class="small subtle">{{ field.help_text }}</p>{% endif %}
+  </div>
+{% endfor %}
+</div>

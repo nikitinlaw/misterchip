@@ -3,9 +3,11 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+from ops.runtime import public_site_url_is_valid, read_revision
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
+MISTERCHIP_REVISION = read_revision(BASE_DIR)
 
 DEBUG = os.getenv("DJANGO_DEBUG", "0") == "1"
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
@@ -20,6 +22,9 @@ CSRF_TRUSTED_ORIGINS = [v.strip() for v in os.getenv("DJANGO_CSRF_TRUSTED_ORIGIN
 # Caddy is the only public entry point; Docker remains bound to 127.0.0.1.
 if os.getenv("DJANGO_TRUST_PROXY_SSL", "0") == "1":
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# Enable only for the sole trusted ingress with an isolated private upstream.
+# Caddy must overwrite incoming X-Forwarded-For with one client address.
+TRUST_PROXY_CLIENT_IP = os.getenv("DJANGO_TRUST_PROXY_CLIENT_IP", "0") == "1"
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -31,6 +36,7 @@ INSTALLED_APPS = [
     "catalog",
     "editorial",
     "projects",
+    "market",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -86,10 +92,18 @@ EMAIL_BACKEND = os.getenv(
     "DJANGO_EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend",
 )
 EMAIL_HOST = os.getenv("EMAIL_HOST", "localhost")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+try:
+    EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+except ValueError:
+    raise RuntimeError("EMAIL_PORT must be a valid TCP port.") from None
+if not 1 <= EMAIL_PORT <= 65535:
+    raise RuntimeError("EMAIL_PORT must be a valid TCP port.")
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "1") == "1"
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "0") == "1"
+if EMAIL_BACKEND == "django.core.mail.backends.smtp.EmailBackend" and EMAIL_USE_TLS and EMAIL_USE_SSL:
+    raise RuntimeError("SMTP STARTTLS and implicit TLS cannot both be enabled.")
 EMAIL_TIMEOUT = 10
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "MISTERCHIP <noreply@example.invalid>")
 if not DEBUG and EMAIL_BACKEND == "django.core.mail.backends.console.EmailBackend":
@@ -106,6 +120,9 @@ CACHES = {
 # For a *localhost-only SSH tunnel* during the private testing phase.
 # Never enable this mode for a publicly reachable HTTP service.
 STAGING_SSH_TUNNEL = os.getenv("DJANGO_STAGING_SSH_TUNNEL", "0") == "1"
+PUBLIC_SITE_URL = os.getenv("PUBLIC_SITE_URL", "https://misterchip.ru").rstrip("/")
+if not public_site_url_is_valid(PUBLIC_SITE_URL, allow_http=DEBUG or STAGING_SSH_TUNNEL):
+    raise RuntimeError("PUBLIC_SITE_URL must be an origin URL; public deployments require HTTPS.")
 if STAGING_SSH_TUNNEL:
     if DEBUG or set(ALLOWED_HOSTS) - {"localhost", "127.0.0.1", "[::1]"}:
         raise RuntimeError("SSH-tunnel staging requires DEBUG=0 and loopback-only hosts.")

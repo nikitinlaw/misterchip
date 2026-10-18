@@ -44,9 +44,19 @@ jobs:
       - run: python manage.py check
       - name: Validate deploy scripts and private Compose
         run: |
-          bash -n ops/bootstrap-staging.sh ops/deploy-gateway.sh ops/deploy-host.sh ops/deploy-public-host.sh
+          bash -n ops/bootstrap-staging.sh ops/deploy-gateway.sh ops/deploy-host.sh ops/deploy-public-host.sh ops/notifications.sh
           cp .env.example .env
           docker compose -f compose.staging.yaml config -q
           rm .env
       - run: python manage.py collectstatic --noinput
       - run: python manage.py test
+      - name: Build image and verify its revision
+        env:
+          EXPECTED_REVISION: ${{ github.sha }}
+        run: |
+          docker build --build-arg "MISTERCHIP_REVISION=$EXPECTED_REVISION" -t misterchip-ci .
+          docker run --rm --network none \
+            -e DJANGO_DEBUG=0 -e DJANGO_SECRET_KEY \
+            -e DJANGO_EMAIL_BACKEND=django.core.mail.backends.filebased.EmailBackend \
+            misterchip-ci python manage.py runtime_status \
+              --expect-revision "$EXPECTED_REVISION" --check-mail

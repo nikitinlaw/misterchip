@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly Misterchip restore verification
+
+[Timer]
+OnCalendar=Sun *-*-* 04:30:00 Europe/Moscow
+RandomizedDelaySec=20min
+Persistent=true
+Unit=misterchip-restore-check.service
+
+[Install]
+WantedBy=timers.target

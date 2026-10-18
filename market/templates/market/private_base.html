@@ -1,0 +1,10 @@
+{% extends "catalog/base.html" %}
+{% block robots %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+{% block content %}
+<nav class="market-toolbar" aria-label="Разделы Market">
+  <a href="{% url 'market_shop_list' %}">Магазины</a>
+  <a href="{% url 'market_seller_dashboard' %}">Кабинет продавца</a>
+  <a href="{% url 'market_my_inquiries' %}">Мои обращения</a>
+</nav>
+{% block market_content %}{% endblock %}
+{% endblock %}

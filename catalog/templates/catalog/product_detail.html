@@ -44,10 +44,45 @@
     </section>
     <section class="panel">
       <span class="eyebrow">Торговая площадка</span><h2>Предложения продавцов</h2>
-      <p class="subtle">Магазины ещё не подключены. Актуальных цен и остатков нет.</p>
+      {% if offers %}
+        <p><a class="secondary-action" href="#offers">Сравнить предложения магазинов →</a></p>
+      {% else %}<p class="subtle">Для этой модели пока нет опубликованных предложений.</p>{% endif %}
     </section>
   </aside>
 </div>
+<section id="offers" class="section">
+  <div class="section-heading">
+    <div><span class="eyebrow">У независимых продавцов</span><h2>Предложения магазинов</h2></div>
+    <a href="{% url 'market_seller_dashboard' %}">Добавить предложение</a>
+  </div>
+  <div class="market-offer-grid">
+    {% for offer in offers %}
+    <article class="panel market-offer-card">
+      <div class="market-offer-heading">
+        <h3><a href="{% url 'market_shop_detail' offer.shop.slug %}">{{ offer.shop.name }}</a></h3>
+        <span class="market-price">{{ offer.price|floatformat:2 }} ₽</span>
+      </div>
+      <p class="small subtle">{{ offer.shop.city }} · {{ offer.get_condition_display }}</p>
+      <p><span class="tag">{{ offer.get_availability_display }}</span>{% if offer.stock_quantity != None %} · {{ offer.stock_quantity }} шт.{% else %} · количество не указано{% endif %}</p>
+      {% if offer.requires_confirmation %}
+        <p class="market-freshness stale">Цена и наличие требуют подтверждения у магазина.</p>
+      {% else %}
+        <p class="market-freshness">Подтверждено {{ offer.last_confirmed_at|date:"d.m.Y H:i" }} · актуально до {{ offer.valid_until|date:"d.m.Y H:i" }}.</p>
+      {% endif %}
+      {% if offer.condition_description %}<p>{{ offer.condition_description|linebreaksbr }}</p>{% endif %}
+      {% if offer.fulfilment %}<p><strong>Получение:</strong> {{ offer.fulfilment|linebreaksbr }}</p>{% endif %}
+      {% if offer.lead_time %}<p><strong>Срок:</strong> {{ offer.lead_time }}</p>{% endif %}
+      {% if offer.comment %}<p class="small">{{ offer.comment|linebreaksbr }}</p>{% endif %}
+      {% if offer.seller_sku %}<p class="small subtle">Артикул магазина: {{ offer.seller_sku }}</p>{% endif %}
+      <div class="market-actions">
+        <a class="secondary-action" href="{% url 'market_inquiry_create' offer.pk %}">Уточнить у магазина</a>
+        {% if offer.external_url %}<a href="{{ offer.external_url }}" target="_blank" rel="noopener noreferrer nofollow">На сайт магазина ↗</a>{% endif %}
+      </div>
+    </article>
+    {% empty %}<p class="empty-state">Предложений пока нет. Вы можете вернуться позже или добавить предложение своего магазина.</p>{% endfor %}
+  </div>
+  <p class="small subtle">Обращение поступит выбранному магазину. Цену, наличие, доставку и порядок оплаты подтвердит продавец.</p>
+</section>
 <section class="section">
   <span class="eyebrow">Читайте также</span>
   <h2>Статьи и инструкции об этой модели</h2>

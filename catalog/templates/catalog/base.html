@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="yandex-verification" content="10e74506a1dcf479">
   <meta name="description" content="{% block description %}Справочный каталог электроники MISTERCHIP: технические характеристики и сравнения моделей.{% endblock %}">
+  {% block robots %}{% endblock %}
   <title>{% block title %}MISTERCHIP — каталог электроники{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'catalog/site.css' %}">
   <link rel="icon" type="image/png" sizes="128x128" href="{% static 'catalog/favicon.png' %}">
@@ -20,6 +21,7 @@
     <nav class="nav" aria-label="Основная навигация">
       <a href="{% url 'home' %}">Главная</a>
       <a href="{% url 'catalog_search' %}">Каталог</a>
+      <a href="{% url 'market_shop_list' %}">Магазины</a>
       <a href="{% url 'article_list' %}">Публикации</a>
       <a href="{% url 'project_list' %}">DIY-проекты</a>
       {% if request.user.is_authenticated %}
@@ -33,12 +35,17 @@
   </div>
 </header>
 <main id="main" class="container">
+  {% if messages %}
+  <div class="flash-messages" aria-live="polite">
+    {% for message in messages %}<p class="flash-message {{ message.tags }}">{{ message }}</p>{% endfor %}
+  </div>
+  {% endif %}
   {% block content %}{% endblock %}
 </main>
 <footer class="footer">
   <div class="container footer-inner">
     <span>MISTERCHIP · Информационный каталог электроники</span>
-    <span>Цены, наличие и продавцы появятся после подключения магазинов.</span>
+    <span>Предложения независимых магазинов. Условия покупки уточняйте у продавца.</span>
   </div>
 </footer>
 </body>

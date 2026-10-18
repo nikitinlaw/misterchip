@@ -1,0 +1,19 @@
+<article class="panel market-card">
+  <div class="market-toolbar"><span class="tag">{{ offer.get_condition_display }}</span><span class="small subtle">{{ offer.get_availability_display }}</span></div>
+  <h2><a href="{% url 'product_detail' offer.product.slug %}">{{ offer.product.title }}</a></h2>
+  {% if offer.requires_confirmation %}<p class="small subtle">Последняя указанная цена</p>{% endif %}
+  <p class="market-price">{{ offer.price|floatformat:2 }} ₽</p>
+  {% if offer.requires_confirmation %}
+    <p class="market-freshness stale">Цена и наличие требуют подтверждения.</p>
+  {% else %}
+    <p class="small subtle">Подтверждено {{ offer.last_confirmed_at|date:"d.m.Y H:i" }} · актуально до {{ offer.valid_until|date:"d.m.Y H:i" }} МСК</p>
+  {% endif %}
+  {% if offer.stock_quantity != None %}<p class="small">Количество: {{ offer.stock_quantity }}</p>{% else %}<p class="small subtle">Остаток не указан</p>{% endif %}
+  <p>{{ offer.fulfilment }}{% if offer.lead_time %} · {{ offer.lead_time }}{% endif %}</p>
+  {% if offer.condition_description %}<p>{{ offer.condition_description|linebreaksbr }}</p>{% endif %}
+  {% if offer.comment %}<p>{{ offer.comment|linebreaksbr }}</p>{% endif %}
+  <div class="market-toolbar">
+    <a class="secondary-action" href="{% url 'market_inquiry_create' offer.pk %}">{% if offer.requires_confirmation %}Уточнить у магазина{% else %}Написать магазину{% endif %} →</a>
+    {% if offer.external_url %}<a href="{{ offer.external_url }}" target="_blank" rel="noopener noreferrer nofollow">На сайте магазина ↗</a>{% endif %}
+  </div>
+</article>

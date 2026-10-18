@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Misterchip off-host database backup
+
+[Timer]
+OnCalendar=*-*-* 03:30:00 Europe/Moscow
+RandomizedDelaySec=20min
+Persistent=true
+Unit=misterchip-backup.service
+
+[Install]
+WantedBy=timers.target

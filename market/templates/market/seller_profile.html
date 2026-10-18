@@ -1,0 +1,10 @@
+{% extends "market/private_base.html" %}
+{% block title %}Сведения продавца — MISTERCHIP{% endblock %}
+{% block market_content %}
+<section class="page-heading"><h1>Сведения продавца</h1><p class="lede">Представьтесь как предприниматель или организация. Проверка сведений нужна для публикации магазинов.</p></section>
+{% if seller %}<p><span class="tag">{{ seller.get_status_display }}</span></p>{% if seller.moderation_note %}<p class="form-error">{{ seller.moderation_note|linebreaksbr }}</p>{% endif %}{% endif %}
+<form method="post" class="panel market-form">{% csrf_token %}
+  {% include "market/_form_fields.html" %}
+  <div class="market-toolbar"><button type="submit">Отправить сведения на проверку</button><a href="{% url 'market_seller_dashboard' %}">Вернуться в кабинет</a></div>
+</form>
+{% endblock %}

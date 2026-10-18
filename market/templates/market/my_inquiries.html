@@ -1,0 +1,16 @@
+{% extends "market/private_base.html" %}
+{% block title %}Мои обращения в магазины — MISTERCHIP{% endblock %}
+{% block market_content %}
+<section class="page-heading"><h1>Мои обращения</h1><p class="lede">Обращения, отправленные из вашей учётной записи, и ответы магазинов.</p></section>
+<div class="search-result-list">
+{% for inquiry in page %}
+<article class="search-result"><div>
+  <div class="market-toolbar"><span class="tag">{{ inquiry.get_status_display }}</span><span class="small subtle">{{ inquiry.created_at|date:"d.m.Y H:i" }}</span></div>
+  <h2><a href="{% url 'market_inquiry_detail' inquiry.public_id %}">{{ inquiry.offer.product.title }}</a></h2>
+  <p>{{ inquiry.shop.name }}</p><p class="small subtle">№ {{ inquiry.public_id }}</p>
+  <a href="{% url 'market_inquiry_detail' inquiry.public_id %}">Открыть обращение →</a>
+</div></article>
+{% empty %}<p class="empty-state">Вы пока не отправляли обращений из своей учётной записи.</p>{% endfor %}
+</div>
+{% include "market/_pagination.html" %}
+{% endblock %}

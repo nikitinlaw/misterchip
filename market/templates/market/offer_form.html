@@ -1,0 +1,10 @@
+{% extends "market/private_base.html" %}
+{% block title %}{% if offer %}Редактирование предложения{% else %}Новое предложение{% endif %} — MISTERCHIP{% endblock %}
+{% block market_content %}
+<section class="page-heading"><span class="eyebrow">{{ shop.name }}</span><h1>{% if offer %}Редактирование предложения{% else %}Новое предложение{% endif %}</h1>
+<p class="lede">Выберите существующую модель и укажите свои цену, наличие и условия получения.</p>
+{% if offer.status == 'published' %}<p class="subtle">Обновление цены и наличия применяется сразу. Изменение модели, состояния или условий проходит повторную проверку.</p>{% endif %}</section>
+<form method="post" class="panel market-form">{% csrf_token %}{% include "market/_form_fields.html" %}
+<div class="market-toolbar"><button type="submit">Сохранить предложение</button><a href="{% url 'market_shop_dashboard' shop.pk %}">Вернуться в магазин</a></div>
+</form>
+{% endblock %}
