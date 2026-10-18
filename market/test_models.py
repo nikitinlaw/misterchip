@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser, Permission
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError, transaction
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -332,32 +332,34 @@ class MarketServiceTests(TestCase):
             with self.subTest(inn=inn), self.assertRaises(ValidationError):
                 seller.full_clean()
 
+    @override_settings(SECURE_SSL_REDIRECT=True)
     def test_moderation_admin_prevents_raw_state_edits_and_private_inquiry_access(self):
         self.employee.is_staff = True
         self.employee.save()
         self.employee.user_permissions.add(Permission.objects.get(codename="moderate_market"))
         self.client.force_login(self.employee)
-        response = self.client.get(reverse("admin:market_shop_changelist"))
+        response = self.client.get(reverse("admin:market_shop_changelist"), secure=True)
         self.assertEqual(response.status_code, 200)
         response = self.client.post(reverse("admin:market_shop_change", args=[self.shop.pk]), {
             "status": "archived", "seller": self.other_seller.pk, "_save": "Сохранить",
-        })
+        }, secure=True)
         self.assertEqual(response.status_code, 302)
         self.shop.refresh_from_db()
         self.assertEqual(self.shop.status, Shop.Status.PUBLISHED)
         self.assertEqual(self.shop.seller_id, self.seller.pk)
-        self.assertEqual(self.client.get(reverse("admin:market_inquiry_changelist")).status_code, 403)
-        self.assertEqual(self.client.get(reverse("admin:market_notification_changelist")).status_code, 403)
+        self.assertEqual(self.client.get(reverse("admin:market_inquiry_changelist"), secure=True).status_code, 403)
+        self.assertEqual(self.client.get(reverse("admin:market_notification_changelist"), secure=True).status_code, 403)
 
+    @override_settings(SECURE_SSL_REDIRECT=True)
     def test_admin_publish_action_requires_submission(self):
         offer = save_offer(actor=self.owner, shop=self.shop, data=self.offer_data(seller_sku="admin-test"))
         self.client.force_login(self.moderator)
         url = reverse("admin:market_offer_changelist")
         data = {"action": "publish_offers", "_selected_action": [str(offer.pk)]}
-        self.assertEqual(self.client.post(url, data).status_code, 302)
+        self.assertEqual(self.client.post(url, data, secure=True).status_code, 302)
         offer.refresh_from_db()
         self.assertEqual(offer.status, Offer.Status.DRAFT)
         submit_offer(actor=self.owner, offer=offer)
-        self.assertEqual(self.client.post(url, data).status_code, 302)
+        self.assertEqual(self.client.post(url, data, secure=True).status_code, 302)
         offer.refresh_from_db()
         self.assertEqual(offer.status, Offer.Status.PUBLISHED)
