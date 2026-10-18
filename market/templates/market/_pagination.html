@@ -1,0 +1,7 @@
+{% if page.has_other_pages %}
+<nav class="pagination" aria-label="Страницы результатов">
+  {% if page.has_previous %}<a href="?{% if pagination_prefix %}{{ pagination_prefix }}&amp;{% endif %}{{ page_param|default:'page' }}={{ page.previous_page_number }}{% if page_anchor %}#{{ page_anchor }}{% endif %}">← Предыдущая</a>{% endif %}
+  <span>{{ page.number }} / {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}<a href="?{% if pagination_prefix %}{{ pagination_prefix }}&amp;{% endif %}{{ page_param|default:'page' }}={{ page.next_page_number }}{% if page_anchor %}#{{ page_anchor }}{% endif %}">Следующая →</a>{% endif %}
+</nav>
+{% endif %}

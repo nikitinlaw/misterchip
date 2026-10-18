@@ -7,7 +7,8 @@ from urllib.parse import urlparse
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.cache import cache
-from django.test import RequestFactory, TestCase, override_settings
+from django.http import HttpResponse
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -153,3 +154,41 @@ class AccountSecurityTests(TestCase):
             )
         self.assertEqual(response.status_code, 503)
         self.assertFalse(get_user_model().objects.filter(username="securemaker").exists())
+
+
+@override_settings(
+    TRUST_PROXY_CLIENT_IP=False,
+    CACHES={"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "LOCATION": "proxy-auth-limit-tests"}},
+)
+class ProxyAuthRateLimitTests(SimpleTestCase):
+    def setUp(self):
+        cache.clear()
+        self.factory = RequestFactory()
+        self.view = auth_rate_limit("proxy-auth-test", max_requests=2, period_seconds=60)(lambda request: HttpResponse("accepted"))
+
+    def request(self, peer="172.18.0.1", **headers):
+        return self.factory.post("/account/login/", REMOTE_ADDR=peer, **headers)
+
+    @override_settings(TRUST_PROXY_CLIENT_IP=True)
+    def test_two_clients_through_one_proxy_have_independent_auth_budgets(self):
+        for _ in range(2):
+            self.assertEqual(self.view(self.request(HTTP_X_FORWARDED_FOR="203.0.113.1")).status_code, 200)
+        self.assertEqual(self.view(self.request(HTTP_X_FORWARDED_FOR="203.0.113.1")).status_code, 429)
+        self.assertEqual(self.view(self.request(HTTP_X_FORWARDED_FOR="203.0.113.2")).status_code, 200)
+
+    def test_direct_forwarded_header_cannot_evade_auth_limit(self):
+        for peer in ("203.0.113.10", "172.18.0.1"):
+            cache.clear()
+            with self.subTest(peer=peer):
+                for index in range(2):
+                    self.assertEqual(self.view(self.request(peer, HTTP_X_FORWARDED_FOR=f"198.51.100.{index + 1}")).status_code, 200)
+                self.assertEqual(self.view(self.request(peer, HTTP_X_FORWARDED_FOR="198.51.100.99")).status_code, 429)
+
+    @override_settings(TRUST_PROXY_CLIENT_IP=True)
+    def test_invalid_proxy_header_is_rejected_before_shared_cache(self):
+        with patch("accounts.security.cache.add") as add:
+            for value in ("", "invalid", "203.0.113.1, 203.0.113.2", "203.0.113.1:80"):
+                with self.subTest(value=value):
+                    self.assertEqual(self.view(self.request(HTTP_X_FORWARDED_FOR=value)).status_code, 400)
+            self.assertEqual(self.view(self.request("8.8.8.8", HTTP_X_FORWARDED_FOR="203.0.113.1")).status_code, 400)
+        add.assert_not_called()

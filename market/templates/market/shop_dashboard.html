@@ -1,0 +1,52 @@
+{% extends "market/private_base.html" %}
+{% block title %}{{ shop.name }}: кабинет магазина — MISTERCHIP{% endblock %}
+{% block market_content %}
+<section class="page-heading"><span class="eyebrow">Кабинет магазина · {{ shop.city }}</span><h1>{{ shop.name }}</h1><p><span class="tag">{{ shop.get_status_display }}</span></p>
+{% if shop.moderation_note %}<p class="form-error">{{ shop.moderation_note|linebreaksbr }}</p>{% endif %}
+<div class="market-toolbar">
+  {% if can_edit %}<a href="{% url 'market_shop_edit' shop.pk %}">Сведения магазина</a>{% endif %}
+  {% if can_members %}<a href="{% url 'market_shop_members' shop.pk %}">Сотрудники и права</a>{% endif %}
+  {% if shop.is_public %}<a href="{% url 'market_shop_detail' shop.slug %}">Публичная страница ↗</a>{% endif %}
+  {% if can_edit %}
+    {% if shop.status == 'draft' or shop.status == 'rejected' or shop.status == 'paused' %}<form method="post" action="{% url 'market_shop_submit' shop.pk %}" class="inline-submit">{% csrf_token %}<button type="submit">Отправить магазин на проверку</button></form>{% endif %}
+    {% if shop.status != 'archived' %}<form method="post" action="{% url 'market_shop_visibility' shop.pk %}" class="market-toolbar inline-submit">{% csrf_token %}{% if shop.status != 'paused' %}<button type="submit" name="status" value="paused">Приостановить магазин</button>{% endif %}<button type="submit" name="status" value="archived">В архив</button></form>{% endif %}
+  {% endif %}
+</div>
+</section>
+{% if can_offers %}
+<section class="section" id="offers"><div class="market-toolbar"><h2>Предложения</h2><a class="secondary-action" href="{% url 'market_offer_create' shop.pk %}">Добавить предложение →</a></div>
+<div class="search-result-list">
+{% for offer in offers %}
+<article class="search-result"><div>
+  <div class="market-toolbar"><h3>{{ offer.product.title }}</h3><span class="tag">{{ offer.get_status_display }}</span></div>
+  <p>{{ offer.price|floatformat:2 }} ₽ · {{ offer.get_availability_display }} · {{ offer.get_condition_display }}</p>
+  {% if offer.requires_confirmation %}<p class="market-freshness stale">Цена и наличие требуют подтверждения.</p>{% else %}<p class="small subtle">Актуально до {{ offer.valid_until|date:"d.m.Y H:i" }} МСК</p>{% endif %}
+  {% if offer.moderation_note %}<p class="small">{{ offer.moderation_note|linebreaksbr }}</p>{% endif %}
+  <div class="market-toolbar">
+    <a href="{% url 'market_offer_edit' offer.pk %}">Редактировать предложение</a>
+    {% if offer.status == 'published' %}<a href="{% url 'market_offer_confirm' offer.pk %}">Подтвердить актуальность</a>{% endif %}
+    {% if offer.status == 'draft' or offer.status == 'rejected' or offer.status == 'paused' %}<form method="post" action="{% url 'market_offer_submit' offer.pk %}" class="inline-submit">{% csrf_token %}<button type="submit">Отправить на проверку</button></form>{% endif %}
+    {% if offer.status != 'archived' %}<form method="post" action="{% url 'market_offer_visibility' offer.pk %}" class="market-toolbar inline-submit">{% csrf_token %}{% if offer.status != 'paused' %}<button type="submit" name="status" value="paused">Приостановить</button>{% endif %}<button type="submit" name="status" value="archived">В архив</button></form>{% endif %}
+  </div>
+</div></article>
+{% empty %}<p class="empty-state">Добавьте первое предложение к опубликованной модели из каталога.</p>{% endfor %}
+</div>
+{% include "market/_pagination.html" with page=offers page_param='offers_page' page_anchor='offers' pagination_prefix=offers_pagination_prefix %}
+</section>
+{% endif %}
+{% if can_inquiries %}
+<section class="section" id="inquiries"><h2>Обращения покупателей</h2>
+<div class="search-result-list">
+{% for inquiry in inquiries %}
+  <article class="search-result"><div>
+    <div class="market-toolbar"><span class="tag">{{ inquiry.get_status_display }}</span><span class="small subtle">{{ inquiry.created_at|date:"d.m.Y H:i" }}</span></div>
+    <h3><a href="{% url 'market_seller_inquiry_detail' inquiry.public_id %}">{{ inquiry.offer.product.title }}</a></h3>
+    <p class="small">{{ inquiry.name|default:"Покупатель" }} · № {{ inquiry.public_id }}</p>
+    <a href="{% url 'market_seller_inquiry_detail' inquiry.public_id %}">Открыть обращение →</a>
+  </div></article>
+{% empty %}<p class="empty-state">Новых обращений пока нет.</p>{% endfor %}
+</div>
+{% include "market/_pagination.html" with page=inquiries page_param='inquiries_page' page_anchor='inquiries' pagination_prefix=inquiries_pagination_prefix %}
+</section>
+{% endif %}
+{% endblock %}

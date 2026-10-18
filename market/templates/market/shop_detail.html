@@ -1,0 +1,29 @@
+{% extends "catalog/base.html" %}
+{% block title %}{{ shop.name }} — магазин на MISTERCHIP{% endblock %}
+{% block description %}{{ shop.name }}: {{ shop.city }}. Предложения электроники и условия получения.{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'market_shop_list' %}">Магазины</a><span>›</span><span>{{ shop.name }}</span></div>
+<section class="page-heading"><span class="eyebrow">{{ shop.city }}</span><h1>{{ shop.name }}</h1></section>
+<div class="detail-layout">
+  <section class="panel">
+    {% if shop.description %}<div class="market-message-body">{{ shop.description|linebreaks }}</div>{% endif %}
+    <p>{{ shop.seller.legal_name }} · ИНН {{ shop.seller.inn }}</p>
+    {% if shop.address %}<p><strong>Адрес:</strong> {{ shop.address }}</p>{% endif %}
+    {% if shop.opening_hours %}<p><strong>Режим работы:</strong> {{ shop.opening_hours }}</p>{% endif %}
+  </section>
+  <aside class="panel">
+    <h2>Связаться с магазином</h2>
+    {% if shop.public_email %}<p class="market-message-body"><strong>Email:</strong> {{ shop.public_email }}</p>{% endif %}
+    {% if shop.public_phone %}<p><strong>Телефон:</strong> {{ shop.public_phone }}</p>{% endif %}
+    {% if shop.website %}<p><a href="{{ shop.website }}" target="_blank" rel="noopener noreferrer nofollow">Сайт магазина ↗</a></p>{% endif %}
+    <p class="small subtle">По конкретной модели отправьте обращение из её предложения ниже.</p>
+  </aside>
+</div>
+<section class="section"><h2>Предложения магазина</h2>
+  <div class="product-grid">
+  {% for offer in page %}{% include "market/_offer_card.html" %}
+  {% empty %}<p class="empty-state">Опубликованных предложений пока нет.</p>{% endfor %}
+  </div>
+  {% include "market/_pagination.html" %}
+</section>
+{% endblock %}

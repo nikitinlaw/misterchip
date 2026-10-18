@@ -1,4 +1,5 @@
-"""Minimal private health endpoint used by container readiness checks."""
+"""Readiness endpoint; the body stays compatible with existing container checks."""
+from django.conf import settings
 from django.core.cache import cache
 from django.db import connection
 from django.http import HttpResponse
@@ -13,5 +14,9 @@ def healthz(request):
         if cache.get("misterchip:healthcheck") != "ok":
             raise RuntimeError("Cache unavailable")
     except Exception:
-        return HttpResponse("unavailable", status=503, content_type="text/plain")
-    return HttpResponse("ok", content_type="text/plain")
+        response = HttpResponse("unavailable", status=503, content_type="text/plain")
+    else:
+        response = HttpResponse("ok", content_type="text/plain")
+    response["X-Misterchip-Revision"] = settings.MISTERCHIP_REVISION
+    response["Cache-Control"] = "no-store"
+    return response

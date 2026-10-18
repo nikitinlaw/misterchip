@@ -1,0 +1,7 @@
+{% extends "market/private_base.html" %}
+{% block title %}Подтвердить актуальность предложения — MISTERCHIP{% endblock %}
+{% block market_content %}
+<section class="page-heading"><span class="eyebrow">{{ shop.name }}</span><h1>Подтвердить цену и наличие</h1><p class="lede">{{ offer.product.title }}</p></section>
+<section class="panel"><p class="market-price">{{ offer.price|floatformat:2 }} ₽</p><p>{{ offer.get_availability_display }}{% if offer.stock_quantity != None %} · {{ offer.stock_quantity }} шт.{% endif %}</p><p>{{ offer.fulfilment }}{% if offer.lead_time %} · {{ offer.lead_time }}{% endif %}</p><a href="{% url 'market_offer_edit' offer.pk %}">Сначала изменить цену или условия</a></section>
+<form method="post" class="panel market-form section">{% csrf_token %}{% include "market/_form_fields.html" %}<div class="market-toolbar"><button type="submit">Подтвердить сведения</button><a href="{% url 'market_shop_dashboard' shop.pk %}">Вернуться в магазин</a></div></form>
+{% endblock %}

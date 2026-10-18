@@ -1,0 +1,28 @@
+<section class="panel">
+  <div class="market-toolbar"><span class="tag">{{ inquiry.get_status_display }}</span><span class="small subtle">{{ inquiry.created_at|date:"d.m.Y H:i" }} МСК</span></div>
+  <h2>{{ inquiry.offer_snapshot.product_title|default:inquiry.offer.product.title }}</h2>
+  <p>{{ inquiry.offer_snapshot.shop_name|default:inquiry.shop.name }}</p>
+  {% with snapshot=inquiry.offer_snapshot %}
+  <h3>Условия на момент обращения</h3>
+  {% if snapshot.price %}<p><strong>Цена:</strong> {{ snapshot.price }} {% if snapshot.currency == 'RUB' or not snapshot.currency %}₽{% else %}{{ snapshot.currency }}{% endif %}</p>{% endif %}
+  {% if snapshot.availability_label or snapshot.availability %}
+    <p><strong>Наличие:</strong> {% if snapshot.availability_label %}{{ snapshot.availability_label }}{% elif snapshot.availability == 'in_stock' %}В наличии{% elif snapshot.availability == 'on_order' %}Под заказ{% elif snapshot.availability == 'out_of_stock' %}Нет в наличии{% else %}{{ snapshot.availability }}{% endif %}</p>
+  {% endif %}
+  {% if 'stock_quantity' in snapshot %}<p><strong>Остаток:</strong> {% if snapshot.stock_quantity != None %}{{ snapshot.stock_quantity }}{% else %}Остаток не указан{% endif %}</p>{% endif %}
+  {% if snapshot.condition_label or snapshot.condition %}
+    <p><strong>Состояние:</strong> {% if snapshot.condition_label %}{{ snapshot.condition_label }}{% elif snapshot.condition == 'new' %}Новый{% elif snapshot.condition == 'used' %}Бывший в употреблении{% elif snapshot.condition == 'refurbished' %}Восстановленный{% else %}{{ snapshot.condition }}{% endif %}</p>
+  {% endif %}
+  {% if snapshot.condition_description %}<div class="market-message-body"><strong>Описание состояния:</strong> {{ snapshot.condition_description|linebreaksbr }}</div>{% endif %}
+  {% if snapshot.fulfilment %}<p class="market-message-body"><strong>Способ получения:</strong> {{ snapshot.fulfilment }}</p>{% endif %}
+  {% if snapshot.lead_time %}<p class="market-message-body"><strong>Срок получения:</strong> {{ snapshot.lead_time }}</p>{% endif %}
+  {% if snapshot.seller_sku %}<p class="market-message-body"><strong>Артикул магазина:</strong> {{ snapshot.seller_sku }}</p>{% endif %}
+  {% if snapshot.comment %}<div class="market-message-body"><strong>Комментарий магазина:</strong> {{ snapshot.comment|linebreaksbr }}</div>{% endif %}
+  {% if snapshot.external_url %}<p class="market-message-body"><a href="{{ snapshot.external_url }}" target="_blank" rel="noopener noreferrer nofollow">Ссылка из предложения на момент обращения ↗</a></p>{% endif %}
+  {% if snapshot.requires_confirmation %}<p class="market-freshness stale">На момент обращения цена и наличие требовали подтверждения.</p>{% endif %}
+  {% if not snapshot.condition and not snapshot.fulfilment %}<p class="small subtle">Подробные условия предложения для этого обращения не сохранены.</p>{% endif %}
+  {% endwith %}
+  <h3>Сообщение покупателя</h3><div class="market-message-body">{{ inquiry.message|linebreaks }}</div>
+</section>
+{% if inquiry.reply_text %}
+<section class="panel section"><h2>Последний ответ магазина</h2><p class="small subtle">{{ inquiry.replied_at|date:"d.m.Y H:i" }} МСК</p><div class="market-message-body">{{ inquiry.reply_text|linebreaks }}</div></section>
+{% endif %}

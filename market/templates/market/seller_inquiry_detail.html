@@ -1,0 +1,23 @@
+{% extends "market/private_base.html" %}
+{% block title %}Обращение покупателя — MISTERCHIP{% endblock %}
+{% block market_content %}
+<section class="page-heading"><span class="eyebrow">{{ inquiry.shop.name }}</span><h1>Обращение покупателя</h1><p class="small subtle market-message-body">№ {{ inquiry.public_id }}</p></section>
+{% include "market/_inquiry_summary.html" %}
+<section class="panel section"><h2>Контакты покупателя</h2>
+  {% if inquiry.name %}<p><strong>Имя:</strong> {{ inquiry.name }}</p>{% endif %}
+  <p class="market-message-body"><strong>Email:</strong> {{ inquiry.email }}</p>
+  {% if inquiry.phone %}<p><strong>Телефон:</strong> {{ inquiry.phone }}</p>{% endif %}
+  <p class="small subtle">Контакты переданы для ответа на это обращение и не публикуются.</p>
+</section>
+{% if inquiry.status != 'closed' and inquiry.status != 'cancelled' %}
+<section class="section"><h2>Ответить покупателю</h2>
+<form method="post" class="panel market-form">{% csrf_token %}<input type="hidden" name="action" value="reply">{% include "market/_form_fields.html" with form=reply_form %}<button type="submit">Сохранить и отправить ответ</button></form>
+</section>
+{% endif %}
+{% if inquiry.status != 'closed' and inquiry.status != 'cancelled' %}
+<section class="section"><h2>Обработка обращения</h2>
+<form method="post" class="panel market-form">{% csrf_token %}<input type="hidden" name="action" value="status">{% include "market/_form_fields.html" with form=status_form %}<button type="submit">Изменить статус</button></form>
+</section>
+{% endif %}
+<p><a href="{% url 'market_shop_dashboard' inquiry.shop_id %}">← Вернуться в магазин</a></p>
+{% endblock %}

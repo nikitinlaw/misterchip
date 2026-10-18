@@ -5,6 +5,9 @@ set -Eeuo pipefail
 umask 077
 [[ $# -eq 1 && "$1" =~ ^[0-9a-f]{40}$ ]] || { echo "Invalid commit ID." >&2; exit 2; }
 expected="$1"
+install -d -o root -g root -m 0700 /run/misterchip-ops
+exec 9>/run/misterchip-ops/operation.lock
+flock -w 120 9 || { echo "Another deployment or backup operation is running." >&2; exit 2; }
 owner=misterchip-admin
 repository="/home/$owner/misterchip"
 env_file="$repository/.env"
@@ -14,9 +17,9 @@ for config in \
   'DJANGO_DEBUG=0' \
   'DJANGO_STAGING_SSH_TUNNEL=0' \
   'DJANGO_TRUST_PROXY_SSL=1' \
-  'DJANGO_EMAIL_BACKEND=django.core.mail.backends.filebased.EmailBackend'; do
+  'DJANGO_TRUST_PROXY_CLIENT_IP=1'; do
   grep -Fxq "$config" "$env_file" || {
-    echo "Staging configuration is not ready; run the bootstrap procedure." >&2
+    echo "Public configuration is not ready; follow docs/STAGING_DEPLOY.md." >&2
     exit 2
   }
 done
@@ -74,11 +77,17 @@ docker compose -f "$compose_file" exec -T db sh -c \
   'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > "$backup"
 [[ -s "$backup" ]] || { echo "Backup failed; deployment aborted." >&2; exit 1; }
 
-docker compose -f "$compose_file" build web
+docker compose -f "$compose_file" build --build-arg "MISTERCHIP_REVISION=$expected" web
+# Validate Django's actual environment parsing without sending a message.
+# File mail is still accepted for the existing pilot, but is reported not ready.
+docker compose -f "$compose_file" run --rm --no-deps web \
+  python manage.py runtime_status --expect-revision "$expected" --check-mail
 docker compose -f "$compose_file" run --rm --no-deps web python manage.py migrate --noinput
 docker compose -f "$compose_file" run --rm --no-deps web python manage.py seed_demo_catalog
 docker compose -f "$compose_file" up -d --wait web
 curl --fail --silent --show-error --max-time 10 \
   http://127.0.0.1:8000/healthz/ | grep -qx ok
+docker compose -f "$compose_file" exec -T web \
+  python manage.py runtime_status --expect-revision "$expected" --check-mail
 echo "MISTERCHIP public HTTPS backend deployed: $expected"
 echo "The web backend remains loopback-only; Caddy terminates public HTTPS."

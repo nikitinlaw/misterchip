@@ -1,0 +1,13 @@
+{% extends "catalog/base.html" %}
+{% block robots %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+{% block title %}Обращение в {{ shop.name }} — MISTERCHIP{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{% url 'market_shop_list' %}">Магазины</a><span>›</span><a href="{% url 'market_shop_detail' shop.slug %}">{{ shop.name }}</a></div>
+<section class="page-heading"><span class="eyebrow">{{ shop.name }}</span><h1>{% if offer.requires_confirmation %}Уточнить у магазина{% else %}Написать магазину{% endif %}</h1><p class="lede">{{ offer.product.title }}</p></section>
+<section class="panel"><p class="market-price">{{ offer.price|floatformat:2 }} ₽</p><p>{{ offer.get_availability_display }} · {{ offer.get_condition_display }}</p><p>{{ offer.fulfilment }}{% if offer.lead_time %} · {{ offer.lead_time }}{% endif %}</p>
+{% if offer.requires_confirmation %}<p class="market-freshness stale">Цена и наличие требуют подтверждения. Попросите магазин уточнить сведения перед покупкой.</p>{% endif %}
+<p class="small subtle">Ваше сообщение и контакты будут доступны сотрудникам магазина {{ shop.name }}. Это обращение для уточнения условий, покупка здесь не оформляется.</p></section>
+<form method="post" class="panel market-form section">{% csrf_token %}{% include "market/_form_fields.html" %}
+<div class="market-toolbar"><button type="submit">Отправить обращение</button><a href="{% url 'market_shop_detail' shop.slug %}">Вернуться к магазину</a></div>
+</form>
+{% endblock %}

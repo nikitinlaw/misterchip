@@ -1,0 +1,9 @@
+{% extends "market/private_base.html" %}
+{% block title %}{% if shop %}Редактирование магазина{% else %}Новый магазин{% endif %} — MISTERCHIP{% endblock %}
+{% block market_content %}
+<section class="page-heading"><h1>{% if shop %}{{ shop.name }}: сведения магазина{% else %}Новый магазин{% endif %}</h1><p class="lede">Укажите сведения и контакты, которые будут видны покупателям.</p>
+{% if shop.status == 'published' %}<p class="subtle">Изменённые сведения опубликованного магазина проходят повторную проверку.</p>{% endif %}</section>
+<form method="post" class="panel market-form">{% csrf_token %}{% include "market/_form_fields.html" %}
+<div class="market-toolbar"><button type="submit">Сохранить сведения</button><a href="{% if shop %}{% url 'market_shop_dashboard' shop.pk %}{% else %}{% url 'market_seller_dashboard' %}{% endif %}">Вернуться без сохранения</a></div>
+</form>
+{% endblock %}

@@ -49,7 +49,9 @@ class ManufacturerPilotTests(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, "Официальная спецификация производителя")
         self.assertContains(r, "yageogroup.com/component-documentation/download/specsheet/")
-        self.assertContains(r, "Актуальных цен и остатков нет")
+        self.assertContains(r, "Для этой модели пока нет опубликованных предложений")
+        self.assertFalse(r.context["offers"].exists())
+        self.assertNotContains(r, 'class="market-price"')
         self.assertNotContains(r, "Купить за")
 
     def test_two_ram_models_can_be_compared(self):

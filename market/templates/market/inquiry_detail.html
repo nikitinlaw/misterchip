@@ -1,0 +1,10 @@
+{% extends "market/private_base.html" %}
+{% block title %}Моё обращение — MISTERCHIP{% endblock %}
+{% block market_content %}
+<section class="page-heading"><h1>Обращение в магазин</h1><p class="small subtle market-message-body">№ {{ inquiry.public_id }}</p></section>
+{% include "market/_inquiry_summary.html" %}
+{% if inquiry.status != 'closed' and inquiry.status != 'cancelled' %}
+<form method="post" action="{% url 'market_inquiry_cancel' inquiry.public_id %}" class="inline-submit section">{% csrf_token %}<button type="submit">Отменить обращение</button></form>
+{% endif %}
+<p><a href="{% url 'market_my_inquiries' %}">← Все мои обращения</a></p>
+{% endblock %}

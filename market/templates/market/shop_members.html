@@ -1,0 +1,20 @@
+{% extends "market/private_base.html" %}
+{% block title %}{{ shop.name }}: сотрудники — MISTERCHIP{% endblock %}
+{% block market_content %}
+<section class="page-heading"><h1>Сотрудники магазина</h1><p class="lede">{{ shop.name }}</p><p class="subtle">Управляющий редактирует магазин, предложения и обращения. Отдельные роли дают доступ только к предложениям или обращениям. Состав сотрудников меняет владелец.</p></section>
+<section class="section"><h2>Добавить сотрудника</h2>
+<form method="post" class="panel market-form">{% csrf_token %}{% include "market/_form_fields.html" %}<button type="submit">Предоставить доступ</button></form>
+</section>
+<section class="section"><h2>Состав сотрудников</h2>
+<p class="small subtle">Владелец {{ shop.owner.username }} уже имеет полный доступ.</p>
+<div class="search-result-list">
+{% for item in members %}
+<article class="panel market-card"><h3>{{ item.member.user.username }}</h3>
+<form method="post" action="{% url 'market_membership_update' shop.pk item.member.pk %}" class="market-form">{% csrf_token %}
+{% include "market/_form_fields.html" with form=item.form %}<button type="submit">Сохранить права</button>
+</form></article>
+{% empty %}<p class="empty-state">Дополнительные сотрудники не назначены.</p>{% endfor %}
+</div>
+</section>
+<p><a href="{% url 'market_shop_dashboard' shop.pk %}">← Вернуться в магазин</a></p>
+{% endblock %}
