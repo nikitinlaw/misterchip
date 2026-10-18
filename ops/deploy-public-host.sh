@@ -34,7 +34,7 @@ grep -Fxq "DJANGO_CSRF_TRUSTED_ORIGINS=https://$public_domain,https://www.$publi
 grep -Fxq 'DJANGO_SECURE_SSL_REDIRECT=0' "$env_file" || {
   echo "Misterchip HTTPS termination must be delegated to Caddy." >&2; exit 2;
 }
-grep -Eq '^DJANGO_SECRET_KEY=.{32,} "$env_file" || { echo "DJANGO_SECRET_KEY is not configured." >&2; exit 2; }
+grep -Eq '^DJANGO_SECRET_KEY=.{32,}$' "$env_file" || { echo "DJANGO_SECRET_KEY is not configured." >&2; exit 2; }
 grep -Eq '^DB_PASSWORD=.{24,}$' "$env_file" || { echo "DB_PASSWORD is not configured." >&2; exit 2; }
 if grep -Eq '(local-development-only|replace-this-with-a-random-secret)' "$env_file"; then
   echo "Example credentials are forbidden." >&2
@@ -82,51 +82,3 @@ curl --fail --silent --show-error --max-time 10 \
   http://127.0.0.1:8000/healthz/ | grep -qx ok
 echo "MISTERCHIP public HTTPS backend deployed: $expected"
 echo "The web backend remains loopback-only; Caddy terminates public HTTPS."
- "$env_file" || { echo "DJANGO_SECRET_KEY is not configured." >&2; exit 2; }
-grep -Eq '^DB_PASSWORD=.{24,}$' "$env_file" || { echo "DB_PASSWORD is not configured." >&2; exit 2; }
-if grep -Eq '(local-development-only|replace-this-with-a-random-secret)' "$env_file"; then
-  echo "Example credentials are forbidden." >&2
-  exit 2
-fi
-
-cd "$repository"
-[[ "$(runuser -u "$owner" -- git -C "$repository" branch --show-current)" == main ]] || { echo "Expected main branch." >&2; exit 2; }
-if [[ -n "$(runuser -u "$owner" -- git -C "$repository" status --porcelain --untracked-files=no)" ]]; then
-  echo "Local tracked changes exist; refusing to overwrite." >&2
-  exit 2
-fi
-runuser -u "$owner" -- env \
-  GIT_SSH_COMMAND="ssh -i /home/$owner/.ssh/misterchip_github -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
-  git -C "$repository" fetch --no-tags origin main
-actual="$(runuser -u "$owner" -- git -C "$repository" rev-parse refs/remotes/origin/main)"
-[[ "$actual" == "$expected" ]] || {
-  echo "Deploy request is stale or does not match origin/main." >&2
-  exit 2
-}
-runuser -u "$owner" -- git -C "$repository" reset --hard "$expected"
-
-# The configuration binds the ONLY HTTP port to host loopback. Database and
-# Redis have no published ports. Changes to the Compose file need review.
-grep -Fq '"127.0.0.1:8000:8000"' "$compose_file" || {
-  echo "Missing required localhost-only port binding." >&2; exit 2;
-}
-docker compose -f "$compose_file" config -q
-docker compose -f "$compose_file" up -d --wait db redis
-
-# Backup is local and temporary. Off-server backups are still required before
-# opening the service for real users.
-backup_dir=/var/backups/misterchip
-install -d -m 700 "$backup_dir"
-backup="$backup_dir/postgres-$(date -u +%Y%m%dT%H%M%SZ)-$expected.dump"
-docker compose -f "$compose_file" exec -T db sh -c \
-  'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > "$backup"
-[[ -s "$backup" ]] || { echo "Backup failed; deployment aborted." >&2; exit 1; }
-
-docker compose -f "$compose_file" build web
-docker compose -f "$compose_file" run --rm --no-deps web python manage.py migrate --noinput
-docker compose -f "$compose_file" run --rm --no-deps web python manage.py seed_demo_catalog
-docker compose -f "$compose_file" up -d --wait web
-curl --fail --silent --show-error --max-time 10 \
-  http://127.0.0.1:8000/healthz/ | grep -qx ok
-echo "MISTERCHIP private staging deployed: $expected"
-echo "Access only by SSH tunnel; no public HTTP port is opened."
