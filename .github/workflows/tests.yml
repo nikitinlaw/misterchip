@@ -44,7 +44,7 @@ jobs:
       - run: python manage.py check
       - name: Validate deploy scripts and private Compose
         run: |
-          bash -n ops/bootstrap-staging.sh ops/deploy-gateway.sh ops/deploy-host.sh
+          bash -n ops/bootstrap-staging.sh ops/deploy-gateway.sh ops/deploy-host.sh ops/deploy-public-host.sh
           cp .env.example .env
           docker compose -f compose.staging.yaml config -q
           rm .env
