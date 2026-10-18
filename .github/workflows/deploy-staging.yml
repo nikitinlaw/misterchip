@@ -1,6 +1,12 @@
 name: Deploy private staging
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'catalog/templates/catalog/base.html'
+      - 'catalog/test_yandex_verification.py'
+      - '.github/workflows/deploy-staging.yml'
 
 permissions:
   contents: read
@@ -58,6 +64,11 @@ jobs:
       - run: python manage.py test
 
   deploy:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event_name == 'push' &&
+        github.event.head_commit.message == 'deploy: Misterchip Yandex verification'))
     needs: tests
     runs-on: ubuntu-24.04
     environment: staging
