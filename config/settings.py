@@ -16,6 +16,10 @@ if not SECRET_KEY:
         raise RuntimeError("DJANGO_SECRET_KEY is required when DEBUG is disabled.")
 
 ALLOWED_HOSTS = [v.strip() for v in os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if v.strip()]
+CSRF_TRUSTED_ORIGINS = [v.strip() for v in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if v.strip()]
+# Caddy is the only public entry point; Docker remains bound to 127.0.0.1.
+if os.getenv("DJANGO_TRUST_PROXY_SSL", "0") == "1":
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
