@@ -1,0 +1,110 @@
+name: Local demo startup
+on:
+  pull_request:
+    paths:
+      - README.md
+      - docs/LOCAL_DEVELOPMENT.md
+      - compose.yaml
+      - .env.example
+      - .dockerignore
+      - Dockerfile
+      - requirements.txt
+      - manage.py
+      - config/**
+      - accounts/**
+      - catalog/**
+      - editorial/**
+      - projects/**
+      - data/**
+      - templates/**
+      - .github/workflows/local-demo.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: local-demo-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  demo:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      COMPOSE_PROJECT_NAME: misterchip-local-demo-ci
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Prepare disposable local settings
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import secrets
+
+          text = Path('.env.example').read_text()
+          text = text.replace('replace-this-with-a-random-secret', secrets.token_urlsafe(48))
+          text = text.replace('DB_PASSWORD=local-development-only', 'DB_PASSWORD=' + secrets.token_urlsafe(36))
+          Path('.env').write_text(text)
+          PY
+      - name: Build the documented local image
+        run: docker compose build web
+      - name: Start a fresh database and seed the demo
+        run: |
+          docker compose up -d --wait db redis
+          docker compose run --rm --no-deps web python manage.py migrate --noinput
+          docker compose run --rm --no-deps web python manage.py seed_demo_catalog --dry-run
+          docker compose run --rm --no-deps web python manage.py seed_demo_catalog
+          docker compose run --rm --no-deps web python manage.py check
+          docker compose up -d web
+      - name: Check health and seeded pages over HTTP
+        run: |
+          python3 - <<'PY'
+          import time
+          import urllib.error
+          import urllib.request
+
+          base = 'http://127.0.0.1:8000'
+          deadline = time.monotonic() + 90
+          while True:
+              try:
+                  with urllib.request.urlopen(base + '/healthz/', timeout=5) as response:
+                      if response.status == 200 and response.read().strip() == b'ok':
+                          break
+              except (OSError, urllib.error.URLError):
+                  pass
+              if time.monotonic() >= deadline:
+                  raise SystemExit('Local demo did not become healthy')
+              time.sleep(2)
+
+          checks = {
+              '/': ('KF552C40BB-16', 'RC0603FR-071KL'),
+              '/catalog/search/?q=Kingston': ('KF552C40BB-16', 'KF556C40BB-16'),
+              '/product/kf552c40bb-16/': ('KF552C40BB-16', 'kingston.com'),
+          }
+          for path, expected in checks.items():
+              with urllib.request.urlopen(base + path, timeout=10) as response:
+                  body = response.read().decode('utf-8')
+                  if response.status != 200 or not all(value in body for value in expected):
+                      raise SystemExit('Unexpected demo page: ' + path)
+              print('OK:', path)
+
+          assets = {
+              '/static/catalog/site.css': 'text/css',
+              '/static/catalog/misterchip-logo.png': 'image/png',
+              '/static/catalog/favicon.png': 'image/png',
+          }
+          for path, expected_type in assets.items():
+              with urllib.request.urlopen(base + path, timeout=10) as response:
+                  if response.status != 200 or response.headers.get_content_type() != expected_type:
+                      raise SystemExit('Unexpected demo asset: ' + path)
+                  if not response.read():
+                      raise SystemExit('Empty demo asset: ' + path)
+              print('OK:', path)
+          PY
+      - name: Show service status on failure
+        if: failure()
+        run: docker compose ps -a
+      - name: Remove this job's disposable containers and data
+        if: always()
+        run: docker compose down --volumes --remove-orphans
