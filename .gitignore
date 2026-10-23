@@ -1,4 +1,6 @@
 .env
+.env.*
+!.env.example
 .venv/
 __pycache__/
 *.py[cod]
@@ -9,6 +11,8 @@ htmlcov/
 db.sqlite3
 media/
 staticfiles/
+private_mail/
 *.log
 *.backup
+*.dump
 .idea/
